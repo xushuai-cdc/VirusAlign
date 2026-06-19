@@ -1,0 +1,11 @@
+name,source,host
+Betacoronavirus pandemicum,NCBI,Human
+SARS-CoV-2,GISAID,Human
+Alphainfluenzavirus influenzae,NCBI,Human
+Orthoflavivirus zikaense,GISAID,Mosquito
+Zika virus,manual,Human
+2019-nCoV,manual,Human
+Dengue virus,field,Human
+Orthoflavivirus denguei,NCBI,Human
+Betacoronavirus cameli,NCBI,Camel
+Unknown virus X,field_sample,Bat
