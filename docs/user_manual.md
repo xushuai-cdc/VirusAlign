@@ -2,7 +2,9 @@
 
 ## Overview / 概述
 
-VirusAlign maps virus names from heterogeneous sources (NCBI, GISAID, EBI) to standardized ICTV taxonomic classifications. / 将来自 NCBI、GISAID 等多源数据库的病毒名称标准化为 ICTV 官方物种名和完整分类路径。
+VirusAlign maps virus names from heterogeneous sources (NCBI, GISAID, EBI) to standardized ICTV taxonomic classifications. 
+
+将来自 NCBI、GISAID 等多源数据库的病毒名称标准化为 ICTV 官方物种名和完整分类路径。
 
 Full name: 基于ICTV标准的病原体物种语义映射与分类标准化系统V1.0
 
