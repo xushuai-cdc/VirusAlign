@@ -1,57 +1,87 @@
- # VirusAlign 用户手册
+# VirusAlign User Manual / 用户手册
 
- ## 概述
+## Overview / 概述
 
- VirusAlign 是基于 ICTV 病毒分类标准的跨数据库物种名称对齐与标准化工具。
- 输入病毒物种名称（或 NCBI Taxon ID），输出 ICTV 标准的完整分类路径。
+VirusAlign maps virus names from heterogeneous sources (NCBI, GISAID, EBI) to standardized ICTV taxonomic classifications. / 将来自 NCBI、GISAID 等多源数据库的病毒名称标准化为 ICTV 官方物种名和完整分类路径。
 
- ## 安装
+Full name: 基于ICTV标准的病原体物种语义映射与分类标准化系统V1.0
 
- ```bash
- pip install -r requirements.txt
- ```
+## Quick Start / 快速开始
 
- ## 使用流程
+`ash
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+`
+Open / 打开: http://localhost:8501
 
- ### 步骤一：构建分类树
+## Online Demo / 在线演示
+https://virusalign.streamlit.app/
 
- ```bash
- python src/build_tree.py --msl data/raw/ICTV_MasterSpeciesList.xlsx \
-                          --output data/processed/ictv_taxonomy_tree.json
- ```
+## Interface / 界面说明
 
- ### 步骤二：构建跨库映射表
+The web interface uses bilingual labels (English with Chinese annotations). / 界面采用双语标签（英文标注 + 中文说明）。
 
- ```bash
- python src/build_mappings.py --tree data/processed/ictv_taxonomy_tree.json \
-                              --msl data/raw/ICTV_MasterSpeciesList.xlsx \
-                              --output data/processed/
- ```
+- **Quick Lookup (单名查询)**: Enter a single virus name or NCBI tax_id
+- **Batch Process (批量处理)**: Upload CSV/Excel for large-scale processing
+- **Sidebar (侧边栏)**: Shows data stats, session match statistics, and pathogen coverage
 
- ### 步骤三：批量标准化
+## Deployment Modes / 部署模式
 
- ```bash
- python src/align.py --input examples/sample_input.csv \
-                     --output result.csv
- ```
+### 1. Streamlit Cloud (Online / 在线)
+Zero installation: https://virusalign.streamlit.app/
 
- ## 输入输出格式
+### 2. Local Streamlit (Interactive / 交互式科研模式)
+`ash
+streamlit run streamlit_app.py
+`
 
- **输入**：CSV 需包含 `name` 列（病毒名或 NCBI Taxon ID）。
+### 3. Flask API (Industrial / 工业级集成模式)
+`ash
+python src/webapp.py
+`
+API endpoint: http://localhost:5188
 
- **输出**：在原字段基础上追加以下 ICTV 标准化字段：
+### 4. CLI (Command-line / 命令行批处理)
+`ash
+python src/cli_handler.py -i input.csv -o output.csv
+`
 
- - `ictv_standard_name` — ICTV 规范物种名
- - `ictv_match_source` — 匹配方式（exact / alias / ncbi_id / unmatched）
- - `ictv_full_path` — 完整分类路径（斜线分隔）
- - `ictv_*` — 各层级（realm, kingdom, phylum, class, order, family, genus, species）
+## Input Format / 输入格式
 
- ## 自定义别名
+| Format / 格式 | Example / 示例 | Match Method / 匹配方式 |
+|---|---|---|
+| ICTV formal name | Betacoronavirus pandemicum | Hash exact match |
+| Alias / common name | SARS-CoV-2, COVID-19, Zika virus | Semantic alias mapping |
+| NCBI tax_id | 3418604, 1003835 | Local + live API fallback |
 
- 直接编辑 `data/processed/alias_to_ictv.json`，按以下格式追加：
+Batch input: CSV or Excel file with a column containing virus names. / 批量输入支持 CSV 和 Excel 格式。
 
- ```json
- {
-   "your_alias_name": "ICTV Standard Species Name"
- }
- ```
+## Output Fields / 输出字段
+
+| Field / 字段 | Description / 说明 | Example / 示例 |
+|---|---|---|
+| ictv_standard_name | Standardized ICTV species name | Betacoronavirus pandemicum |
+| ictv_match_source | Match method: exact/alias/ncbi_id/unmatched | alias |
+| ictv_full_path | Full taxonomic path | Riboviria / Coronaviridae / ... |
+| ictv_family | Family / 科 | Coronaviridae |
+| ictv_genus | Genus / 属 | Betacoronavirus |
+| ictv_species | Species / 种 | Betacoronavirus pandemicum |
+
+## Matching Engine / 匹配引擎
+
+Four-stage heuristic mapping / 四级启发式映射:
+1. **Hash exact match / 哈希精确匹配**: O(1) lookup in 17,554 species index
+2. **Semantic alias conversion / 语义别名转换**: 52,844-entry alias dictionary
+3. **Cross-db ID sync / 跨库 ID 同步**: 15,875 NCBI tax_id mappings + live API fallback
+4. **Recursive hierarchy reconstruction / 递归层级补全**: Auto-fills Realm~Species path
+
+## Data Coverage / 数据覆盖
+
+- ICTV Master Species List 2025 (MSL41): 17,554 species / 物种
+- Alias mappings / 别名映射: 52,844 entries / 条
+- NCBI tax_id mappings / tax_id 映射: 15,875 entries / 条 (90% ICTV coverage)
+- 20 viral families / 病毒科, 50+ important human pathogens / 重要人类病原体
+
+## Citation / 引用
+
+本课题系新发突发与重大传染病防控国家科技重大专项《X传染病全景病原图谱和序列数据库构建》的技术产出。
