@@ -52868,5 +52868,8 @@
   "astv": "Mamastrovirus hominis",
   "crimean congo hemorrhagic fever virus": "Orthonairovirus haemorrhagiae",
   "chikungunya": "Alphavirus chikungunya",
-  "human adenovirus": "Mastadenovirus pollicis"
+  "human adenovirus": "Mastadenovirus pollicis",
+  "bkv": "Betapolyomavirus hominis",
+  "jcv": "Betapolyomavirus quartihominis",
+  "ev a71": "Enterovirus alphacoxsackie"
 }
