@@ -7,9 +7,9 @@ ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 
-from engine import AlignmentEngine, MatchResult
-from constants import IMPORTANT_VIRUS_ALIASES
-from utils import normalize_virus_name, normalize_taxonomy_key
+from src.engine import AlignmentEngine, MatchResult
+from src.constants import IMPORTANT_VIRUS_ALIASES
+from src.utils import normalize_virus_name, normalize_taxonomy_key
 
 
 def test_engine_init():

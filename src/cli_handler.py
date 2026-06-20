@@ -9,11 +9,11 @@ from typing import List
 
 import pandas as pd
 
-from config import DEFAULT_NAME_COLUMN
-from data_manager import DataManager
-from engine import AlignmentEngine
-from exceptions import VirusAlignError
-from logger import get_logger, configure_logger
+from src.config import DEFAULT_NAME_COLUMN
+from src.data_manager import DataManager
+from src.engine import AlignmentEngine
+from src.exceptions import VirusAlignError
+from src.logger import get_logger, configure_logger
 
 logger = get_logger("cli")
 

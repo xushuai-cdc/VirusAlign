@@ -6,9 +6,9 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from config import DataPaths
-from exceptions import DataIntegrityError, MappingDataError, TaxonomyTreeError
-from logger import get_logger
+from src.config import DataPaths
+from src.exceptions import DataIntegrityError, MappingDataError, TaxonomyTreeError
+from src.logger import get_logger
 
 logger = get_logger("data_manager")
 
