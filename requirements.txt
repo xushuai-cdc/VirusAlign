@@ -1,0 +1,4 @@
+﻿pandas>=1.4
+ openpyxl>=3.0
+ requests>=2.25
+streamlit>=1.35
