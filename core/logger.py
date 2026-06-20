@@ -40,3 +40,5 @@ def get_logger(name: str = "VirusAlign") -> logging.Logger:
 
     _LOGGER_CACHE[name] = logger
     return logger
+
+configure_logger = get_logger
