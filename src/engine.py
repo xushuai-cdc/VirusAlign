@@ -5,11 +5,11 @@ import urllib.request
 import re
 from typing import Dict, List, Optional, Tuple
 
-from src.config import MATCH_CONFIDENCE, TAXONOMY_LEVELS
-from src.data_manager import DataManager
-from src.exceptions import NCBIAPIError, NetworkTimeoutError
-from src.logger import get_logger
-from src.utils import ncbi_efetch_taxonomy, normalize_taxonomy_key
+from config import MATCH_CONFIDENCE, TAXONOMY_LEVELS
+from data_manager import DataManager
+from exceptions import NCBIAPIError, NetworkTimeoutError
+from logger import get_logger
+from utils import ncbi_efetch_taxonomy, normalize_taxonomy_key
 
 logger = get_logger("engine")
 
