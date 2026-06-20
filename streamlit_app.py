@@ -2,21 +2,32 @@
 """VirusAlign web interface - Streamlit implementation with bilingual UI."""
 
 import sys
+import os
 from pathlib import Path
 
 import streamlit as st
 import pandas as pd
 
+# --- 关键修复：强制将 src 文件夹加入搜索路径的第一位 ---
 PROJECT_ROOT = Path(__file__).resolve().parent
+SRC_PATH = str(PROJECT_ROOT / "src")
+if SRC_PATH not in sys.path:
+    sys.path.insert(0, SRC_PATH)
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.config import SOFTWARE_NAME_CN, SOFTWARE_NAME_EN, SOFTWARE_VERSION, ICTV_VERSION
-from src.constants import MATCH_SOURCE_LABELS, VIRUS_COVERAGE_CATEGORIES
-from src.data_manager import DataManager
-from src.engine import AlignmentEngine
-from src.logger import configure_logger
-
-configure_logger("VirusAlign")
+# --- 去掉 src. 前缀，直接导入 ---
+try:
+    from config import SOFTWARE_NAME_CN, SOFTWARE_NAME_EN, SOFTWARE_VERSION, ICTV_VERSION
+    from constants import MATCH_SOURCE_LABELS, VIRUS_COVERAGE_CATEGORIES
+    from data_manager import DataManager
+    from engine import AlignmentEngine
+    from logger import configure_logger
+except ImportError:
+    from src.config import SOFTWARE_NAME_CN, SOFTWARE_NAME_EN, SOFTWARE_VERSION, ICTV_VERSION
+    from src.constants import MATCH_SOURCE_LABELS, VIRUS_COVERAGE_CATEGORIES
+    from src.data_manager import DataManager
+    from src.engine import AlignmentEngine
+    from src.logger import configure_logger
 
 # --------------- Page configuration ---------------
 st.set_page_config(
