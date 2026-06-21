@@ -185,9 +185,8 @@ with tab1:
     if "query_input" not in st.session_state:
         st.session_state["query_input"] = ""
 
-    with st.container():
-        st.markdown("<div style='max-width:100px;margin:0 auto'>", unsafe_allow_html=True)
-        
+    _, search_col, _ = st.columns([1.5, 3, 1.5])
+    with search_col:
         query = st.text_input(
             "Virus name or NCBI tax_id",
             placeholder="e.g. SARS-CoV-2, 3418604, 1003835, Zika virus",
@@ -202,8 +201,6 @@ with tab1:
         for i, s in enumerate(sample_queries):
             if btn_cols[i].button(s, key=f"sample_{i}"):
                 sample_selected = s
-        
-        st.markdown("</div>", unsafe_allow_html=True)
         
         if sample_selected:
             query = sample_selected
