@@ -223,7 +223,6 @@ with tab1:
         if sample_selected:
             query = sample_selected
 
-        query = sample_selected
 
     if query:
         with st.spinner("Matching..."):
