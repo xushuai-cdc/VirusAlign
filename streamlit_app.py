@@ -47,6 +47,11 @@ div.stButton > button:first-child {
     font-size: 1.1rem !important;
 }
 
+/* Tab 居中 */
+div[data-testid="stTabs"] > div:first-child {
+    justify-content: center !important;
+}
+
 div.stButton > button:first-child:hover {
     background-color: #0d4bdb;
 }
@@ -185,7 +190,7 @@ with tab1:
     if "query_input" not in st.session_state:
         st.session_state["query_input"] = ""
 
-    _, search_col, _ = st.columns([1.5, 3, 1.5])
+    _, search_col, _ = st.columns([1.5, 2.8, 1.5])
     with search_col:
         query = st.text_input(
             "Virus name or NCBI tax_id",
