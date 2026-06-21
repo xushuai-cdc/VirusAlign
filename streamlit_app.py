@@ -44,7 +44,7 @@ div.stButton > button:first-child {
 
 /* Tab 放大 */
 .stTabs [data-baseweb="tab"] {
-    font-size: 2.1rem;
+    font-size: 2.1rem !important;
 }
 /* Tab 居中 */
 .stTabs {
@@ -53,7 +53,7 @@ div.stButton > button:first-child {
 
 /* 搜索框 + 示例按钮区域统一宽度 */
 .st-key-query_input, .stButton {
-    max-width: 300px;
+    max-width: 100px;
     margin: 0 auto;
 }
 
@@ -145,7 +145,7 @@ with st.sidebar:
 st.markdown(
     '<h1 style="color:#003680;font-size:6.0rem;font-weight:900;margin-bottom:2px;text-align:center;'
     'font-family:Source Sans Pro,sans-serif">VirusAlign</h1>'
-    '<p style="color:#222;font-size:3.0rem;margin-top:0;margin-bottom:20px;text-align:center;'
+    '<p style="color:#222;font-size:2.5rem;margin-top:0;margin-bottom:20px;text-align:center;'
     'font-family:Source Sans Pro,sans-serif">'
     '基于ICTV标准的病原体物种语义映射与分类标准化系统</p>',
     unsafe_allow_html=True
@@ -154,19 +154,19 @@ st.markdown(
 c1, c2, c3 = st.columns(3)
 with c1:
     st.markdown(
-        '<div style="background:#F0F7FF;padding:12px 16px;border-radius:8px;border-left:4px solid #003680;font-size:2.05rem">'
+        '<div style="background:#F0F7FF;padding:12px 16px;border-radius:8px;border-left:4px solid #003680;font-size:1.5rem">'
         '<strong>权威合规：</strong><br>深度集成ICTV MSL41分类标准</div>',
         unsafe_allow_html=True
     )
 with c2:
     st.markdown(
-        '<div style="background:#F0F7FF;padding:12px 16px;border-radius:8px;border-left:4px solid #003680;font-size:2.05rem">'
+        '<div style="background:#F0F7FF;padding:12px 16px;border-radius:8px;border-left:4px solid #003680;font-size:1.5rem">'
         '<strong>多源对齐：</strong><br>支持异构命名体系的无缝转换</div>',
         unsafe_allow_html=True
     )
 with c3:
     st.markdown(
-        '<div style="background:#F0F7FF;padding:12px 16px;border-radius:8px;border-left:4px solid #003680;font-size:2.05rem">'
+        '<div style="background:#F0F7FF;padding:12px 16px;border-radius:8px;border-left:4px solid #003680;font-size:1.5rem">'
         '<strong>秒级处理：</strong><br>支持万级规模数据的自动化治理</div>',
         unsafe_allow_html=True
     )
