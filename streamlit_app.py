@@ -44,7 +44,7 @@ div.stButton > button:first-child {
 
  
 .stTabs div[role="tablist"] button p {
-    font-size: 3.1rem !important;
+    font-size: 2.1rem !important;
 }
 
 /* 搜索框 + 示例按钮区域统一宽度 */
