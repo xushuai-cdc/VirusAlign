@@ -65,6 +65,14 @@ div.stButton > button:first-child:hover {
     color: white !important;
 }
 
+    /* Row spacing */
+    .stMarkdown, .stTextInput, .stButton, .stAlert, .stExpander {
+        margin-bottom: 1rem !important;
+    }
+    .stInfo {
+        margin-bottom: 1rem !important;
+    }
+
     [data-testid="stTabs"] {
         display: flex;
         justify-content: center;
