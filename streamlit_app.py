@@ -65,6 +65,11 @@ div.stButton > button:first-child:hover {
     color: white !important;
 }
 
+    /* Sample buttons equal width */
+    .stButton button {
+        width: 100% !important;
+    }
+
     /* Row spacing */
     .stMarkdown, .stTextInput, .stButton, .stAlert, .stExpander {
         margin-bottom: 1rem !important;
