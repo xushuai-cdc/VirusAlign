@@ -215,7 +215,7 @@ with tab1:
         sample_selected = None
         st.markdown("<div style='text-align:center'>Try Samples (点击直接体验):</div>", unsafe_allow_html=True)
         btn_cols = st.columns(5)
-        sample_queries = ["SARS-CoV-2", "SFTSV", "3418604", "Zika", "Rabies"]
+        sample_queries = ["SARS-CoV-2", "SFTSV", "3418604", "Zika virus", "Rabies"]
         for i, s in enumerate(sample_queries):
             if btn_cols[i].button(s, key=f"sample_{i}"):
                 sample_selected = s
