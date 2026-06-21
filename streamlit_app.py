@@ -64,6 +64,11 @@ div.stButton > button:first-child:hover {
 .stAlert.st-success em {
     color: white !important;
 }
+
+    [data-testid="stTabs"] {
+        display: flex;
+        justify-content: center;
+    }
 </style>
 """, unsafe_allow_html=True)
 
