@@ -42,13 +42,8 @@ div.stButton > button:first-child {
     color: #555;
 }
 
-/* Tab 放大 */
-.stTabs [data-baseweb="tab"] {
+div[data-testid="stTabs"] button[data-baseweb="tab"] {
     font-size: 2.1rem !important;
-}
-/* Tab 居中 */
-.stTabs {
-    justify-content: center;
 }
 
 /* 搜索框 + 示例按钮区域统一宽度 */
@@ -337,7 +332,7 @@ with tab2:
 st.divider()
 st.markdown(
     "<div style='text-align:center'>"
-    f"**VirusAlign** v{SOFTWARE_VERSION} | {SOFTWARE_NAME_CN} | {ICTV_VERSION}"
+    f"VirusAlign v{SOFTWARE_VERSION} | {SOFTWARE_NAME_CN} | {ICTV_VERSION}"
     "</div>",
     unsafe_allow_html=True
 )
