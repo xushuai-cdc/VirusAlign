@@ -99,6 +99,7 @@ class AlignmentEngine:
         self._stats: Dict[str, int] = {
             "exact": 0, "alias": 0, "ncbi_id": 0, "unmatched": 0
         }
+        self._idx_lower = None
         logger.info("AlignmentEngine initialized")
 
     @property
@@ -122,6 +123,13 @@ class AlignmentEngine:
             self._stats["exact"] += 1
             logger.debug(f"Exact match: {name}")
             return self._build_match(name, "exact", idx[name])
+        if self._idx_lower is None:
+            self._idx_lower = {k.lower(): (k, v) for k, v in idx.items()}
+        if name in self._idx_lower:
+            orig_name, entry = self._idx_lower[name]
+            self._stats["exact"] += 1
+            logger.debug(f"Exact match (case-insensitive): {name}")
+            return self._build_match(orig_name, "exact", entry)
         return None
 
     def _match_alias(self, name: str) -> Optional[MatchResult]:
