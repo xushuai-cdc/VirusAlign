@@ -42,8 +42,9 @@ div.stButton > button:first-child {
     color: #555;
 }
 
-div[data-testid="stTabs"] button[data-baseweb="tab"] {
-    font-size: 2.1rem !important;
+ 
+.stTabs div[role="tablist"] button p {
+    font-size: 3.1rem !important;
 }
 
 /* 搜索框 + 示例按钮区域统一宽度 */
