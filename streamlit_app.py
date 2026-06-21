@@ -47,12 +47,6 @@ div.stButton > button:first-child {
     font-size: 1.1rem !important;
 }
 
-/* 搜索框 + 示例按钮区域统一宽度 */
-.st-key-query_input, .stButton {
-    max-width: 100px;
-    margin: 0 auto;
-}
-
 div.stButton > button:first-child:hover {
     background-color: #0d4bdb;
 }
@@ -188,22 +182,32 @@ with tab1:
         unsafe_allow_html=True
     )
 
-if "query_input" not in st.session_state:
-    query = st.text_input(
-        "Virus name or NCBI tax_id",
-        placeholder="e.g. SARS-CoV-2, 3418604, 1003835, Zika virus",
-        label_visibility="collapsed",
-    )
-    # Try Samples for demo
-    sample_selected = None
-    st.markdown("<div style='text-align:center'>Try Samples (点击直接体验):</div>", unsafe_allow_html=True)
-    btn_cols = st.columns(5)
-    sample_queries = ["SARS-CoV-2", "SFTSV", "3418604", "Zika virus", "Rabies"]
-    for i, s in enumerate(sample_queries):
-        if btn_cols[i].button(s, key=f"sample_{i}"):
-            sample_selected = s
+    if "query_input" not in st.session_state:
+        st.session_state["query_input"] = ""
 
-    if sample_selected:
+    with st.container():
+        st.markdown("<div style='max-width:300px;margin:0 auto'>", unsafe_allow_html=True)
+        
+        query = st.text_input(
+            "Virus name or NCBI tax_id",
+            placeholder="e.g. SARS-CoV-2, 3418604, 1003835, Zika virus",
+            key="query_input",
+            label_visibility="collapsed",
+        )
+        
+        sample_selected = None
+        st.markdown("<div style='text-align:center'>Try Samples (点击直接体验):</div>", unsafe_allow_html=True)
+        btn_cols = st.columns(5)
+        sample_queries = ["SARS-CoV-2", "SFTSV", "3418604", "Zika virus", "Rabies"]
+        for i, s in enumerate(sample_queries):
+            if btn_cols[i].button(s, key=f"sample_{i}"):
+                sample_selected = s
+        
+        st.markdown("</div>", unsafe_allow_html=True)
+        
+        if sample_selected:
+            query = sample_selected
+
         query = sample_selected
 
     if query:
