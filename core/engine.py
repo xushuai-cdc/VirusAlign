@@ -252,6 +252,18 @@ class AlignmentEngine:
             result.input_name = raw_name
             return result
 
+        # 尝试剥离所有非字母数字字符（连写变体：covid19, sarscov2）
+        stripped = re.sub(r"[^a-z0-9]", "", normalized)
+        if stripped and stripped != normalized:
+            result = self._match_exact(stripped)
+            if result:
+                result.input_name = raw_name
+                return result
+            result = self._match_alias(stripped)
+            if result:
+                result.input_name = raw_name
+                return result
+
         # 尝试格式变体（下划线、短横线）
         for variant in [normalized.replace(" ", "_"), normalized.replace(" ", "-")]:
             if variant != normalized:
