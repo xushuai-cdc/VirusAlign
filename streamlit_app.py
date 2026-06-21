@@ -186,7 +186,7 @@ with tab1:
         st.session_state["query_input"] = ""
 
     with st.container():
-        st.markdown("<div style='max-width:300px;margin:0 auto'>", unsafe_allow_html=True)
+        st.markdown("<div style='max-width:100px;margin:0 auto'>", unsafe_allow_html=True)
         
         query = st.text_input(
             "Virus name or NCBI tax_id",
