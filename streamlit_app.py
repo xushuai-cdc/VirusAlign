@@ -123,32 +123,31 @@ with st.sidebar:
     st.markdown(f"{len(dm.get_alias_map()):,} 语义别名")
     st.markdown(f"{len(dm.get_ncbi_map()):,} 跨库 ID 映射")
     st.divider()
-    st.markdown("**?????? - Match Methods**")
-    st.markdown("""
-<div style="background:#f0f4f8;padding:8px 12px;border-radius:6px;margin-bottom:6px;border-left:3px solid #167f78">
-<b>???? (Exact Match)</b><br>
-??? ICTV ?????????<br>
-<i>Identical to current ICTV scientific names.</i>
-</div>
-
-<div style="background:#f0f4f8;padding:8px 12px;border-radius:6px;margin-bottom:6px;border-left:3px solid #003680">
-<b>???? (Alias Mapping)</b><br>
-?? 8 ?+ ??????????????????<br>
-<i>Resolved via abbreviations, synonyms, or common names.</i>
-</div>
-
-<div style="background:#f0f4f8;padding:8px 12px;border-radius:6px;margin-bottom:6px;border-left:3px solid #6a0dad">
-<b>???? (API Fallback)</b><br>
-?? NCBI Taxonomy ID ???????<br>
-<i>Real-time traceability via NCBI Taxonomy ID.</i>
-</div>
-
-<div style="background:#f0f4f8;padding:8px 12px;border-radius:6px;margin-bottom:6px;border-left:3px solid #e74c3c">
-<b>???? (Unmatched)</b><br>
-???? ICTV MSL41 ??????????<br>
-<i>No corresponding record found in ICTV MSL41.</i>
-</div>
-""", unsafe_allow_html=True)
+    st.markdown("**匹配方式说明 - Match Methods**")
+    <div class="method-box">
+    <b>精确匹配 (Exact Match)</b><br>
+    输入与 ICTV 标准学名完全一致。<br>
+    <i>Identical to current ICTV scientific names.</i>
+    </div>
+    
+    <div class="method-box">
+    <b>语义映射 (Alias Mapping)</b><br>
+    通过 8 万+ 别名库（含缩写、俗称、曾用名）对齐。<br>
+    <i>Resolved via abbreviations, synonyms, or common names.</i>
+    </div>
+    
+    <div class="method-box">
+    <b>动态溯源 (API Fallback)</b><br>
+    基于 NCBI Taxonomy ID 实时穿透映射。<br>
+    <i>Real-time traceability via NCBI Taxonomy ID.</i>
+    </div>
+    
+    <div class="method-box">
+    <b>未能匹配 (Unmatched)</b><br>
+    未在当前 ICTV MSL41 标准中发现对应条目。<br>
+    <i>No corresponding record found in ICTV MSL41.</i>
+    </div>
+    """, unsafe_allow_html=True)
     st.divider()
     st.markdown("**重点关注病原谱 - Priority Pathogens**")
     st.caption("系统全量覆盖 1.7 万种物种，重点对齐以下高风险类：")
