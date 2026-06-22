@@ -248,7 +248,7 @@ with tab1:
         st.session_state["query_input"] = ""
 
     # 搜索布局
-    _, search_col, _ = st.columns([1.5, 4, 1.5])
+    _, search_col, _ = st.columns([1.5, 3, 1.5])
     with search_col:
         # 搜索框：使用 key 绑定
         user_input = st.text_input(
