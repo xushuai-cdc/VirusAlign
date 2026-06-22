@@ -248,7 +248,7 @@ with tab1:
         st.session_state["query_input"] = ""
 
     # 搜索布局
-    _, search_col, _ = st.columns([1.5, 3, 1.5])
+    _, search_col, _ = st.columns([1.5, 4, 1.5])
     with search_col:
         # 搜索框：使用 key 绑定
         user_input = st.text_input(
@@ -264,14 +264,14 @@ with tab1:
         # ????3???
         row1 = st.columns(3)
         for i, s in enumerate(["SARS-CoV-2", "SFTSV", "3418604"]):
-            if row1[i].button(s, key=f"s1_{i}", use_container_width=True):
+            if row1[i].button(s, key=f"s1_{i}"):
                 st.session_state["query_input"] = s
                 st.rerun()
 
         # ????2???
         row2 = st.columns(2)
         for i, s in enumerate(["Zika", "Rabies"]):
-            if row2[i].button(s, key=f"s2_{i}", use_container_width=True):
+            if row2[i].button(s, key=f"s2_{i}"):
                 st.session_state["query_input"] = s
                 st.rerun()
 
