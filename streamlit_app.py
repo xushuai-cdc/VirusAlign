@@ -154,7 +154,7 @@ with st.sidebar:
 st.markdown(
     '<h1 style="color:#003680;font-size:6.0rem;font-weight:900;margin-bottom:2px;text-align:center;'
     'font-family:Source Sans Pro,sans-serif">VirusAlign</h1>'
-    '<p style="color:#222;font-size:2.5rem;margin-top:0;margin-bottom:20px;text-align:center;'
+    '<p style="color:#222;font-size:2.2rem;margin-top:0;margin-bottom:20px;text-align:center;'
     'font-family:Source Sans Pro,sans-serif">'
     '基于ICTV标准的病原体物种语义映射与分类标准化系统</p>',
     unsafe_allow_html=True
@@ -163,19 +163,19 @@ st.markdown(
 c1, c2, c3 = st.columns(3)
 with c1:
     st.markdown(
-        '<div style="background:#F0F7FF;padding:12px 16px;border-radius:8px;border-left:4px solid #003680;font-size:1.5rem">'
+        '<div style="background:#F0F7FF;padding:12px 16px;border-radius:8px;border-left:4px solid #003680;font-size:1.2rem">'
         '<strong>权威合规：</strong><br>深度集成ICTV MSL41分类标准</div>',
         unsafe_allow_html=True
     )
 with c2:
     st.markdown(
-        '<div style="background:#F0F7FF;padding:12px 16px;border-radius:8px;border-left:4px solid #003680;font-size:1.5rem">'
+        '<div style="background:#F0F7FF;padding:12px 16px;border-radius:8px;border-left:4px solid #003680;font-size:1.2rem">'
         '<strong>多源对齐：</strong><br>支持异构命名体系的无缝转换</div>',
         unsafe_allow_html=True
     )
 with c3:
     st.markdown(
-        '<div style="background:#F0F7FF;padding:12px 16px;border-radius:8px;border-left:4px solid #003680;font-size:1.5rem">'
+        '<div style="background:#F0F7FF;padding:12px 16px;border-radius:8px;border-left:4px solid #003680;font-size:1.2rem">'
         '<strong>秒级处理：</strong><br>支持万级规模数据的自动化治理</div>',
         unsafe_allow_html=True
     )
@@ -190,18 +190,30 @@ st.markdown("""
     <style>
     /* 强制统一 Try Samples 按钮的高度和样式 */
     div.stButton > button {
-        height: 3em;
-        padding-top: 0px;
-        padding-bottom: 0px;
-        border-radius: 5px;
-        border: 1px solid #ccd1d9;
+        width: 100% !important; /* 确保充满列宽 */
+        height: 2.4em !important; /* 减低高度 */
+        padding: 0px 2px !important; /* 左右内边距，给文字留空间 */
+        font-size: 0.85rem !important; /* 关键：缩小字号，确保长单词能放下 */
+        white-space: nowrap !important; /* 禁止文字换行 */
+        overflow: hidden !important; /* 超出部分隐藏（防止撑破框） */
+        text-overflow: ellipsis; /* 万一太长显示省略号 */
+        border-radius: 8px !important;
+        border: 1px solid #ccd1d9 !important;
+        background-color: #f8f9fa !important;
         transition: all 0.2s;
     }
-    /* 鼠标悬停效果 */
+
+    /* 2. 悬停效果 */
     div.stButton > button:hover {
-        border-color: #003366;
-        color: #003366;
-        background-color: #f0f2f6;
+        border-color: #003366 !important;
+        color: #003366 !important;
+        background-color: #f0f2f6 !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+
+    /* 3. 针对特定的 Try Samples 区域微调（可选） */
+    [data-testid="column"] {
+        padding: 0 5px !important; /* 给列之间增加一点间距，防止框挨着框 */
     }
     </style>
     """, unsafe_allow_html=True)
