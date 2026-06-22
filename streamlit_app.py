@@ -261,14 +261,19 @@ with tab1:
         st.markdown("<div style='text-align:center; font-size:1.0rem; color:#666; margin-top:15px'>Try Samples (点击直接体验):</div>", unsafe_allow_html=True)
         
         # 按钮列
-        btn_cols = st.columns(5, gap = "small")
-
-        sample_queries = ["SARS-CoV-2", "SFTSV", "3418604", "Zika", "Rabies"]
-        for i, s in enumerate(sample_queries):
-            # 使用use_container_width = True,确保5个按钮的宽度完全一致
-            if btn_cols[i].button(s, key=f"sample_{i}", use_container_width = True):
+        # ????3???
+        row1 = st.columns(3)
+        for i, s in enumerate(["SARS-CoV-2", "SFTSV", "3418604"]):
+            if row1[i].button(s, key=f"s1_{i}", use_container_width=True):
                 st.session_state["query_input"] = s
-                st.rerun() #点击后强制刷新页面以触发查询
+                st.rerun()
+
+        # ????2???
+        row2 = st.columns(2)
+        for i, s in enumerate(["Zika", "Rabies"]):
+            if row2[i].button(s, key=f"s2_{i}", use_container_width=True):
+                st.session_state["query_input"] = s
+                st.rerun()
 
     # 确定最终查询词：优先用点击按钮的词，否则用用户输入的词
     final_query = st.session_state["query_input"] if st.session_state["query_input"] else user_input
