@@ -261,7 +261,7 @@ with tab1:
         st.markdown("<div style='text-align:center; font-size:1.0rem; color:#666; margin-top:15px'>Try Samples (点击直接体验):</div>", unsafe_allow_html=True)
         
         # 按钮列
-        btn_cols = st.columns(5, gap = "large")
+        btn_cols = st.columns(5, gap = "small")
 
         sample_queries = ["SARS-CoV-2", "SFTSV", "3418604", "Zika", "Rabies"]
         for i, s in enumerate(sample_queries):
