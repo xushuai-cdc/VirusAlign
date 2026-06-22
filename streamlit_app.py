@@ -124,31 +124,76 @@ with st.sidebar:
     st.markdown(f"{len(dm.get_ncbi_map()):,} 跨库 ID 映射")
     st.divider()
     st.markdown("**匹配方式说明 - Match Methods**")
+    # 定义 CSS 样式
+    st.markdown("""
+    <style>
+    .method-card {
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        font-size: 0.82rem;
+        border-left: 5px solid;
+    }
+    .exact-card {
+        background-color: #e6f4ea;
+        border-left-color: #1e8e3e;
+        color: #1e8e3e;
+    }
+    .alias-card {
+        background-color: #e8f0fe;
+        border-left-color: #1967d2;
+        color: #1967d2;
+    }
+    .api-card {
+        background-color: #f3e8fd;
+        border-left-color: #9333ea;
+        color: #6b21a8;
+    }
+    .none-card {
+        background-color: #f1f3f4;
+        border-left-color: #70757a;
+        color: #3c4043;
+    }
+    .card-title {
+        font-weight: bold;
+        margin-bottom: 4px;
+        display: block;
+    }
+    .card-eng {
+        font-style: italic;
+        font-size: 0.75rem;
+        opacity: 0.8;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # 渲染小框框
     st.markdown('''
-    <div class="method-box">
-    <b>精确匹配 (Exact Match)</b><br>
-    输入与 ICTV 标准学名完全一致。<br>
-    <i>Identical to current ICTV scientific names.</i>
+    <div class="method-card exact-card">
+        <span class="card-title">精确匹配 (Exact Match)</span>
+        输入与 ICTV 标准学名完全一致。<br>
+        <span class="card-eng">Identical to official scientific names.</span>
     </div>
     
-    <div class="method-box">
-    <b>语义映射 (Alias Mapping)</b><br>
-    通过 8 万+ 别名库（含缩写、俗称、曾用名）对齐。<br>
-    <i>Resolved via abbreviations, synonyms, or common names.</i>
+    <div class="method-card alias-card">
+        <span class="card-title">语义映射 (Alias Mapping)</span>
+        通过 8万+ 别名库（缩写、俗称）对齐。<br>
+        <span class="card-eng">Resolved via abbreviations or synonyms.</span>
     </div>
     
-    <div class="method-box">
-    <b>动态溯源 (API Fallback)</b><br>
-    基于 NCBI Taxonomy ID 实时穿透映射。<br>
-    <i>Real-time traceability via NCBI Taxonomy ID.</i>
+    <div class="method-card api-card">
+        <span class="card-title">动态溯源 (API Fallback)</span>
+        基于 NCBI Tax ID 实时穿透映射。<br>
+        <span class="card-eng">Real-time trace via NCBI Taxonomy ID.</span>
     </div>
     
-    <div class="method-box">
-    <b>未能匹配 (Unmatched)</b><br>
-    未在当前 ICTV MSL41 标准中发现对应条目。<br>
-    <i>No corresponding record found in ICTV MSL41.</i>
+    <div class="method-card none-card">
+        <span class="card-title">未能匹配 (Unmatched)</span>
+        未在当前 ICTV MSL41 标准中发现。<br>
+        <span class="card-eng">No record found in ICTV MSL41.</span>
     </div>
     ''', unsafe_allow_html=True)
+    
     st.divider()
     st.markdown("**重点关注病原谱 - Priority Pathogens**")
     st.caption("系统全量覆盖 1.7 万种物种，重点对齐以下高风险类：")
