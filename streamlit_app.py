@@ -124,6 +124,7 @@ with st.sidebar:
     st.markdown(f"{len(dm.get_ncbi_map()):,} 跨库 ID 映射")
     st.divider()
     st.markdown("**匹配方式说明 - Match Methods**")
+    st.markdown('''
     <div class="method-box">
     <b>精确匹配 (Exact Match)</b><br>
     输入与 ICTV 标准学名完全一致。<br>
