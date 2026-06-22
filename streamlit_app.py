@@ -123,11 +123,11 @@ with st.sidebar:
     st.markdown(f"{len(dm.get_alias_map()):,} 语义别名")
     st.markdown(f"{len(dm.get_ncbi_map()):,} 跨库 ID 映射")
     st.divider()
-    st.markdown("**当前会话 - Session Stats**")
-    st.caption("(动态统计本次查询情况)")
-    stats = engine.match_stats
-    st.markdown(f"精确匹配: {stats['exact']} | 别名对齐: {stats['alias']}")
-    st.markdown(f"API 溯源: {stats['ncbi_id']} | 未能匹配: {stats['unmatched']}")
+    st.markdown("[匹配方式说明 - Match Methods]")
+    st.markdown("""- **精确匹配 (Exact)**：输入与 ICTV 标准名完全一致
+    - **语义映射 (Alias)**：通过 8 万+别名库（含缩写、俗名、曾用名）映射到标准名
+    - **动态溯源 (API)**：通过 NCBI Taxonomy ID 实时穿透映射
+    - **未能匹配 (Unmatched)**：未在当前ICTV MSL41标准中找到对应条目""")
     st.divider()
     st.markdown("**重点关注病原谱 - Priority Pathogens**")
     st.caption("系统全量覆盖 1.7 万种物种，重点对齐以下高风险类：")
