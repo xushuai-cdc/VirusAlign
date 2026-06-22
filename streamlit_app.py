@@ -147,7 +147,7 @@ with st.sidebar:
     未在当前 ICTV MSL41 标准中发现对应条目。<br>
     <i>No corresponding record found in ICTV MSL41.</i>
     </div>
-    """, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
     st.divider()
     st.markdown("**重点关注病原谱 - Priority Pathogens**")
     st.caption("系统全量覆盖 1.7 万种物种，重点对齐以下高风险类：")
