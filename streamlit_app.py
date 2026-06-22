@@ -123,11 +123,31 @@ with st.sidebar:
     st.markdown(f"{len(dm.get_alias_map()):,} 语义别名")
     st.markdown(f"{len(dm.get_ncbi_map()):,} 跨库 ID 映射")
     st.divider()
-    st.markdown("[匹配方式说明 - Match Methods]")
-    st.markdown("""- **精确匹配 (Exact)**：输入与 ICTV 标准名完全一致
-    - **语义映射 (Alias)**：通过 8 万+别名库（含缩写、俗名、曾用名）映射到标准名
-    - **动态溯源 (API)**：通过 NCBI Taxonomy ID 实时穿透映射
-    - **未能匹配 (Unmatched)**：未在当前ICTV MSL41标准中找到对应条目""")
+    st.markdown("**匹配方式说明 - Match Methods**")
+    <div class="method-box">
+    🟢 <b>精确匹配 (Exact Match)</b><br>
+    输入与 ICTV 标准学名完全一致。<br>
+    <i>Identical to current ICTV scientific names.</i>
+    </div>
+    
+    <div class="method-box">
+    🔵 <b>语义映射 (Alias Mapping)</b><br>
+    通过 8 万+ 别名库（含缩写、俗称、曾用名）对齐。<br>
+    <i>Resolved via abbreviations, synonyms, or common names.</i>
+    </div>
+    
+    <div class="method-box">
+    🟣 <b>动态溯源 (API Fallback)</b><br>
+    基于 NCBI Taxonomy ID 实时穿透映射。<br>
+    <i>Real-time traceability via NCBI Taxonomy ID.</i>
+    </div>
+    
+    <div class="method-box">
+    ⚪ <b>未能匹配 (Unmatched)</b><br>
+    未在当前 ICTV MSL41 标准中发现对应条目。<br>
+    <i>No corresponding record found in ICTV MSL41.</i>
+    </div>
+    """, unsafe_allow_html=True)
     st.divider()
     st.markdown("**重点关注病原谱 - Priority Pathogens**")
     st.caption("系统全量覆盖 1.7 万种物种，重点对齐以下高风险类：")
