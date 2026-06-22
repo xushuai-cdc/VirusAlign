@@ -79,6 +79,17 @@ div[data-testid="stTabs"] button {
     max-width: 1100px;
     padding-top: 2rem;
 }
+
+/* 6. ??????? */
+.stButton button {
+    font-size: 0.7rem !important;
+    padding: 2px 4px !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+}
+.stButton > div {
+    padding: 0 1px !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
