@@ -257,9 +257,6 @@ with c3:
         unsafe_allow_html=True
     )
 
-st.caption(f"v{SOFTWARE_VERSION} | {ICTV_VERSION}")
-
-
 tab1, tab2 = st.tabs(["🔍 Quick Lookup (单名查询)", "📂 Batch Process (批量处理)"])
 
 # ===== Tab 1: Quick Lookup ====
