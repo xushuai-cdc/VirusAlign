@@ -125,25 +125,25 @@ with st.sidebar:
     st.divider()
     st.markdown("**匹配方式说明 - Match Methods**")
     <div class="method-box">
-    🟢 <b>精确匹配 (Exact Match)</b><br>
+    <b>精确匹配 (Exact Match)</b><br>
     输入与 ICTV 标准学名完全一致。<br>
     <i>Identical to current ICTV scientific names.</i>
     </div>
     
     <div class="method-box">
-    🔵 <b>语义映射 (Alias Mapping)</b><br>
+    <b>语义映射 (Alias Mapping)</b><br>
     通过 8 万+ 别名库（含缩写、俗称、曾用名）对齐。<br>
     <i>Resolved via abbreviations, synonyms, or common names.</i>
     </div>
     
     <div class="method-box">
-    🟣 <b>动态溯源 (API Fallback)</b><br>
+    <b>动态溯源 (API Fallback)</b><br>
     基于 NCBI Taxonomy ID 实时穿透映射。<br>
     <i>Real-time traceability via NCBI Taxonomy ID.</i>
     </div>
     
     <div class="method-box">
-    ⚪ <b>未能匹配 (Unmatched)</b><br>
+    <b>未能匹配 (Unmatched)</b><br>
     未在当前 ICTV MSL41 标准中发现对应条目。<br>
     <i>No corresponding record found in ICTV MSL41.</i>
     </div>
