@@ -131,7 +131,7 @@ with st.sidebar:
         padding: 12px;
         border-radius: 8px;
         margin-bottom: 10px;
-        font-size: 0.82rem;
+        font-size: 1.0rem;
         border-left: 5px solid;
     }
     .exact-card {
@@ -161,7 +161,7 @@ with st.sidebar:
     }
     .card-eng {
         font-style: italic;
-        font-size: 0.75rem;
+        font-size: 0.85rem;
         opacity: 0.8;
     }
     </style>
@@ -171,26 +171,26 @@ with st.sidebar:
     st.markdown('''
     <div class="method-card exact-card">
         <span class="card-title">精确匹配 (Exact Match)</span>
-        输入与 ICTV 标准学名完全一致。<br>
-        <span class="card-eng">Identical to official scientific names.</span>
+        输入与 ICTV 标准学名完全一致<br>
+        <span class="card-eng">Identical to official scientific names</span>
     </div>
     
     <div class="method-card alias-card">
-        <span class="card-title">语义映射 (Alias Mapping)</span>
-        通过 8万+ 别名库（缩写、俗称）对齐。<br>
-        <span class="card-eng">Resolved via abbreviations or synonyms.</span>
+        <span class="card-title">别名匹配 (Alias Mapping)</span>
+        通过 8万+ 别名库（缩写、俗称）对齐<br>
+        <span class="card-eng">Resolved via abbreviations or synonyms</span>
     </div>
     
     <div class="method-card api-card">
-        <span class="card-title">动态溯源 (API Fallback)</span>
-        基于 NCBI Tax ID 实时穿透映射。<br>
-        <span class="card-eng">Real-time trace via NCBI Taxonomy ID.</span>
+        <span class="card-title">API回退 (API Fallback)</span>
+        基于 NCBI Taxonomy ID 实时穿透映射<br>
+        <span class="card-eng">Real-time trace via NCBI Taxonomy ID</span>
     </div>
     
     <div class="method-card none-card">
         <span class="card-title">未能匹配 (Unmatched)</span>
-        未在当前 ICTV MSL41 标准中发现。<br>
-        <span class="card-eng">No record found in ICTV MSL41.</span>
+        未在当前 ICTV MSL41 标准中发现<br>
+        <span class="card-eng">No record found in ICTV MSL41</span>
     </div>
     ''', unsafe_allow_html=True)
     
