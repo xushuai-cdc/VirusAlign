@@ -21,67 +21,64 @@ from urllib.parse import quote
 st.set_page_config(
     page_title=SOFTWARE_NAME_EN + " - " + SOFTWARE_NAME_CN,
     page_icon="🦠",
-    layout="wide",
+    layout="wide", #开启宽屏模式
 )
 
 # Custom ICTV-aligned styles
 st.markdown("""
 <style>
-/* Scientific names in serif italic */
+/* 1. 全局字体优化：正文使用无衬线，科学名专用类使用衬线斜体 */
+@import url('https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@1,700&display=swap');
+
 .scientific-name {
     font-family: 'PT Serif', 'Times New Roman', serif;
     font-style: italic;
     font-weight: bold;
     color: #003680;
 }
-/* Oval buttons */
-div.stButton > button:first-child {
-    border-radius: 20px;
-    border: 1px solid #ccc;
-    background-color: #f5f5f5;
-    color: #555;
+
+/* 2. 按钮样式统一：椭圆设计，增加专业感 */
+div.stButton > button {
+    border-radius: 20px !important;
+    border: 1px solid #ccd1d9 !important;
+    background-color: #f8f9fa !important;
+    color: #333 !important;
+    transition: all 0.3s ease !important;
+    height: 3em !important;
+    width: 100% !important;
 }
 
- 
-.stTabs div[role="tablist"] button p {
-    font-size: 1.1rem !important;
+
+/* 悬停效果：使用 ICTV 经典的深蓝色 */
+div.stButton > button:hover {
+    border-color: #003366 !important;
+    background-color: #003366 !important;
+    color: white !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
 }
 
-/* Tab 居中 */
-div[data-testid="stTabs"] > div:first-child {
+/* 3. Tab 导航条居中且加粗 */
+div[data-testid="stTabs"] {
+    display: flex !important;
     justify-content: center !important;
 }
 
-div.stButton > button:first-child:hover {
-    background-color: #0d4bdb;
-}
-/* Status colors */
-.stAlert.st-success {
-    background-color: #167f78 !important;
-    color: white !important;
-    border-color: #0d4bdb !important;
-}
-.stAlert.st-success em {
-    color: white !important;
+div[data-testid="stTabs"] button {
+    font-size: 1.1rem !important;
+    font-weight: bold !important;
+    min-width: 200px !important;
 }
 
-    /* Sample buttons equal width */
-    .stButton button {
-        width: 100% !important;
-    }
+/* 4. 确保 st.success 里的文字是白色的 */
+.stAlert {
+    border-radius: 10px !important;
+}
 
-    /* Row spacing */
-    .stMarkdown, .stTextInput, .stButton, .stAlert, .stExpander {
-        margin-bottom: 1rem !important;
-    }
-    .stInfo {
-        margin-bottom: 1rem !important;
-    }
-
-    [data-testid="stTabs"] {
-        display: flex;
-        justify-content: center;
-    }
+/* 5. 调整主容器宽度，防止在超宽屏上内容太稀疏 */
+.block-container {
+    max-width: 1100px;
+    padding-top: 2rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -94,16 +91,15 @@ def init_engine():
         st.error(f"Data integrity check failed: {errs[0]}")
         return None
     engine = AlignmentEngine(dm)
-    dm.get_taxonomy_tree()
-    dm.get_alias_map()
-    dm.get_ncbi_map()
+    # 预加载数据，减少用户第一次查询的等待时间
+    engine._data.get_taxonomy_tree()
+    engine._data.get_alias_map()
+    engine._data.get_ncbi_map()
     return engine
-
 
 engine = init_engine()
 if engine is None:
     st.stop()
-
 # ======================== Sidebar ========================
 with st.sidebar:
     st.markdown("### VirusAlign v1.0")
@@ -189,7 +185,27 @@ st.caption(f"v{SOFTWARE_VERSION} | {ICTV_VERSION}")
 
 tab1, tab2 = st.tabs(["🔍 Quick Lookup (单名查询)", "📂 Batch Process (批量处理)"])
 
-# ===== Tab 1: Quick Lookup =====
+# ===== Tab 1: Quick Lookup ====
+st.markdown("""
+    <style>
+    /* 强制统一 Try Samples 按钮的高度和样式 */
+    div.stButton > button {
+        height: 3em;
+        padding-top: 0px;
+        padding-bottom: 0px;
+        border-radius: 5px;
+        border: 1px solid #ccd1d9;
+        transition: all 0.2s;
+    }
+    /* 鼠标悬停效果 */
+    div.stButton > button:hover {
+        border-color: #003366;
+        color: #003366;
+        background-color: #f0f2f6;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 with tab1:
     st.markdown("<h3 style='text-align:center;color:#000;font-size:2.4rem'>Find the Species</h3>", unsafe_allow_html=True)
     st.markdown(
@@ -199,40 +215,52 @@ with tab1:
         unsafe_allow_html=True
     )
     st.markdown(
-        "<div style='text-align:center;color:#888;font-size:1.2rem'>"
+        "<div style='text-align:center;color:#888;font-size:1.1rem;margin-bottom:20px'>"
         "(支持通过病毒名称、常用缩写、分离株名或NCBI分类ID识别标准化物种)"
         "</div>",
         unsafe_allow_html=True
     )
 
+    # 初始化 session_state，用于存储当前查询词
     if "query_input" not in st.session_state:
         st.session_state["query_input"] = ""
 
-    _, search_col, _ = st.columns([1.5, 2.8, 1.5])
+    # 搜索布局
+    _, search_col, _ = st.columns([1, 6, 1])
     with search_col:
-        query = st.text_input(
+        # 搜索框：使用 key 绑定
+        user_input = st.text_input(
             "Virus name or NCBI tax_id",
-            placeholder="e.g. SARS-CoV-2, 3418604, 1003835, Zika virus",
-            key="query_input",
+            placeholder="e.g. SARS-CoV-2, 3418604, 1003835, Zika",
+            key="query_text_field",
             label_visibility="collapsed",
         )
+
+        st.markdown("<div style='text-align:center; font-size:0.9rem; color:#666; margin-top:10px'>Try Samples (点击直接体验):</div>", unsafe_allow_html=True)
         
-        sample_selected = None
-        st.markdown("<div style='text-align:center'>Try Samples (点击直接体验):</div>", unsafe_allow_html=True)
+        # 按钮列
         btn_cols = st.columns(5)
-        sample_queries = ["SARS-CoV-2", "SFTSV", "3418604", "Zika virus", "Rabies"]
+        sample_queries = ["SARS-CoV-2", "SFTSV", "3418604", "Zika", "Rabies"]
+
         for i, s in enumerate(sample_queries):
-            if btn_cols[i].button(s, key=f"sample_{i}"):
-                sample_selected = s
+            # 使用use_container_width = True,确保5个按钮的宽度完全一致
+            if btn_cols[i].button(s, key=f"sample_{i}", use_container_width = True):
+                st.session_state["query_input"] = s
+                st.rerun() #点击后强制刷新页面以触发查询
+
+    # 确定最终查询词：优先用点击按钮的词，否则用用户输入的词
+    final_query = st.session_state["query_input"] if st.session_state["query_input"] else user_input
+
+    # 执行匹配并展示结果（只有一个判断块）
+    if final_query:
+        # 重置 session_state 供下次使用
+        st.session_state["query_input"] = ""
         
-        if sample_selected:
-            query = sample_selected
-
-
-    if query:
         with st.spinner("Matching..."):
-            result = engine.match_one(query)
+            result = engine.match_one(final_query)
+            
             if result.is_matched():
+                # --- A. 状态条 ---
                 status_text = MATCH_SOURCE_LABELS.get(result.match_source, result.match_source)
                 match_colors = {"exact": "#167f78", "alias": "#003680", "ncbi_id": "#6a0dad"}
                 bg_color = match_colors.get(result.match_source, "#888")
@@ -241,44 +269,60 @@ with tab1:
                     f"<strong>✅ Status: Identified (状态：已识别) — {status_text}</strong></div>",
                     unsafe_allow_html=True
                 )
+                
+                # --- B. 核心标准名 (斜体) ---
                 st.info(f"**Current Taxon Name (当前官方名称)**: *{result.standard_name}*")
 
+                # --- C. 关键层级 (斜体) ---
                 col1, col2 = st.columns(2)
-                col1.markdown(f"**Family (科)**: *{result.taxonomy.get('Family', '-')}*")
-                col2.markdown(f"**Genus (属)**: *{result.taxonomy.get('Genus', '-')}*")
+                f_val = result.taxonomy.get('Family', '-')
+                g_val = result.taxonomy.get('Genus', '-')
+                # 如果不是 '-'，则加上斜体标签
+                f_display = f"*{f_val}*" if f_val != "-" else "-"
+                g_display = f"*{g_val}*" if g_val != "-" else "-"
+                
+                col1.markdown(f"**Family (科)**: {f_display}")
+                col2.markdown(f"**Genus (属)**: {g_display}")
 
+                # --- D. 权威链接 ---
                 enc = quote(result.standard_name)
+                st.markdown("---")
                 st.markdown("**Authoritative Links (权威链接)**")
-                col1, col2, _ = st.columns([1, 1, 2])
-                col1.link_button("🌐 ICTV Taxonomy", "https://ictv.global/taxonomy/")
-                col2.link_button("🔗 NCBI Taxonomy", f"https://www.ncbi.nlm.nih.gov/taxonomy/?term={enc}")
+                l_col1, l_col2, _ = st.columns([1.2, 1.2, 2])
+                l_col1.link_button("🌐 ICTV Taxonomy", "https://ictv.global/taxonomy/")
+                l_col2.link_button("🔗 NCBI Taxonomy", f"https://www.ncbi.nlm.nih.gov/taxonomy/?term={enc}")
 
+                # --- E. 匹配原理解释 ---
                 explanations = {
                     "exact": "系统识别到您的输入与 ICTV 正式物种名完全一致，已精确匹配至标准分类路径。",
                     "alias": "系统识别到您的输入为常见别名，已自动对齐至 ICTV 2025 标准名。",
                     "ncbi_id": "系统通过 NCBI Taxonomy ID 回溯至当前科学名称，已对齐至 ICTV 标准分类。",
                 }
-                st.markdown(f"**Search Context (匹配依据)**: {explanations.get(result.match_source, '')}")
+                st.caption(f"**Search Context (匹配依据)**: {explanations.get(result.match_source, '')}")
 
+                # --- F. 完整路径 ---
                 with st.expander("**Taxonomic Lineage (分类全路径)**", expanded=True):
                     st.markdown(f"*{result.full_path}*")
 
+                # --- G. 详细层级 (带颜色和斜体) ---
                 with st.expander("**All Taxonomic Levels (各级分类)**"):
                     levels = ["Realm", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
-                    vals = [result.taxonomy.get(l, "-") for l in levels]
                     color_map = {
                         "Realm": "#003366", "Kingdom": "#004d99", "Phylum": "#336699",
                         "Class": "#008080", "Order": "#2E8B57", "Family": "#50C878",
                         "Genus": "#9ACD32", "Species": "#FF8C00"
                     }
-                    for level, val in zip(levels, vals):
+                    for level in levels:
+                        val = result.taxonomy.get(level, "-")
                         c = color_map.get(level, "#888")
                         label = f"<span style='color:{c};font-weight:bold'>{level}</span>"
                         if val == "-":
                             st.markdown(f"{label}: -", unsafe_allow_html=True)
                         else:
                             st.markdown(f"{label}: <i>{val}</i>", unsafe_allow_html=True)
-
+            else:
+                st.error("Unmatched (未匹配到 ICTV 物种)")
+                st.info("💡 Tip: 请检查拼写，或者尝试输入 NCBI Taxonomy ID")
 
 # ===== Tab 2: Batch Process =====
 with tab2:
