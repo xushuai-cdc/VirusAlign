@@ -237,7 +237,7 @@ class AlignmentEngine:
             taxonomy=entry,
         )
 
-    def match_one(self, raw_name: str, use_fuzzy: bool = True) -> MatchResult:
+    def match_one(self, raw_name: str, use_fuzzy: bool = True, use_api: bool = True) -> MatchResult:
         """Execute three-tier matching on a single virus name.
 
         Priority: exact match > alias match > stripped key > fuzzy match > NCBI ID lookup (local + live).
@@ -309,11 +309,11 @@ class AlignmentEngine:
             if result:
                 result.input_name = raw_name
                 return result
-            # 本地未命中时激活 API 回退
-            result = self._match_ncbi_live(name)
-            if result:
-                result.input_name = raw_name
-                return result
+            if use_api:
+                result = self._match_ncbi_live(name)
+                if result:
+                    result.input_name = raw_name
+                    return result
 
         # 全链路过未匹配
         self._stats["unmatched"] += 1
@@ -339,7 +339,7 @@ class AlignmentEngine:
         results: List[MatchResult] = []
         total = len(names)
         for i, name in enumerate(names):
-            results.append(self.match_one(name, use_fuzzy=False))
+            results.append(self.match_one(name, use_fuzzy=False, use_api=False))
             if callback and i % 10 == 0:
                 callback(i + 1, total)
         logger.info(f"Batch done: {total} items, stats={self._stats}")
