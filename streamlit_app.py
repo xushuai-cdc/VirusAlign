@@ -338,8 +338,6 @@ with tab1:
     )
 
     # 初始化 session_state，用于存储当前查询词
-    if "query_input" not in st.session_state:
-        st.session_state["query_input"] = ""
 
     # 搜索布局
     _, search_col, _ = st.columns([1.5, 3, 1.5])
@@ -351,6 +349,7 @@ with tab1:
             key="query_text_field",
             label_visibility="collapsed",
         )
+        query = user_input
 
         st.markdown("<div style='text-align:center; font-size:1.0rem; color:#666; margin-top:15px'>Try Samples (点击直接体验):</div>", unsafe_allow_html=True)
         
@@ -359,21 +358,21 @@ with tab1:
         row1 = st.columns(3)
         for i, s in enumerate(["SARS-CoV-2", "SFTSV", "3418604"]):
             if row1[i].button(s, key=f"s1_{i}"):
-                st.session_state["query_input"] = s
+                query = s
 
         # ????2???
         row2 = st.columns(2)
         for i, s in enumerate(["Zika", "Rabies"]):
             if row2[i].button(s, key=f"s2_{i}"):
-                st.session_state["query_input"] = s
+                query = s
 
     # 确定最终查询词：优先用点击按钮的词，否则用用户输入的词
-    final_query = st.session_state["query_input"] if st.session_state["query_input"] else user_input
+    final_query = query
 
     # 执行匹配并展示结果（只有一个判断块）
     if final_query:
         # 重置 session_state 供下次使用
-        st.session_state["query_input"] = ""
+        pass
         
         with st.spinner("Matching..."):
             result = engine.match_one(final_query)
