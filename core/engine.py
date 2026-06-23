@@ -326,23 +326,31 @@ class AlignmentEngine:
         callback=None,
     ) -> List[MatchResult]:
         """Fast batch matching without fuzzy/API overhead."""
-        alias = self._data.get_alias_map()
-        idx = self._data.get_species_index()
         results: List[MatchResult] = []
         total = len(names)
         for i, raw_name in enumerate(names):
-            name = raw_name.strip()
-            normalized = normalize_taxonomy_key(name)
-            if normalized in idx:
-                r = self._build_match(normalized, "exact", idx[normalized])
-                r.input_name = raw_name
-                results.append(r)
-                self._stats["exact"] += 1
-            elif normalized in alias and alias[normalized] in idx:
-                r = self._build_match(alias[normalized], "alias", idx[alias[normalized]])
-                r.input_name = raw_name
-                results.append(r)
-                self._stats["alias"] += 1
+            n = raw_name.strip()
+            normalized = normalize_taxonomy_key(n)
+            
+            result = self._match_exact(normalized)
+            if not result:
+                result = self._match_alias(normalized)
+            if not result:
+                stripped = re.sub(r"[^a-z0-9]", "", normalized)
+                if stripped and stripped != normalized:
+                    result = self._match_exact(stripped)
+                    if not result:
+                        result = self._match_alias(stripped)
+            if not result:
+                for variant in [normalized.replace(" ", "_"), normalized.replace(" ", "-")]:
+                    if variant != normalized:
+                        result = self._match_alias(variant)
+                        if result:
+                            break
+            
+            if result:
+                result.input_name = raw_name
+                results.append(result)
             else:
                 self._stats["unmatched"] += 1
                 results.append(MatchResult(input_name=raw_name))
