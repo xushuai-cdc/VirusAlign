@@ -369,7 +369,7 @@ with tab1:
     # 确定最终查询词：优先用点击按钮的词，否则用用户输入的词
     final_query = query
 
-    # 执行匹配并展示结果（只有一个判断块）
+    st.write(f"DEBUG: query={query!r}, final_query={final_query!r}")
     if final_query:
         # 重置 session_state 供下次使用
         pass
