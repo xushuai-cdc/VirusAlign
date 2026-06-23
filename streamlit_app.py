@@ -453,6 +453,34 @@ with tab1:
                             st.markdown(f"{label}: -", unsafe_allow_html=True)
                         else:
                             st.markdown(f"{label}: <i>{val}</i>", unsafe_allow_html=True)
+            # H. Semantic Knowledge Graph
+            if reverse_index:
+                species_aliases = reverse_index.get(result.standard_name, [])
+                if species_aliases:
+                    a_list = [a for a, t in species_aliases]
+                    abbrs = [a for a in a_list if a.isupper() and len(a) <= 10]
+                    variants = [a for a in a_list if "virus" in a.lower() or len(a.split()) >= 3]
+                    commons = [a for a in a_list if a not in abbrs and a not in variants]
+                    st.markdown("---")
+                    st.markdown("#### **Semantic Knowledge Graph**")
+                    c1, c2, c3 = st.columns(3)
+                    c1.markdown("**Abbreviations**\n\n" + (" / ".join(abbrs[:10]) if abbrs else "-"))
+                    c2.markdown("**Scientific Variants**\n\n" + (" / ".join(variants[:10]) if variants else "-"))
+                    c3.markdown("**Common & Local**\n\n" + (" / ".join(commons[:10]) if commons else "-"))
+            # H. Semantic Knowledge Graph
+            if reverse_index:
+                species_aliases = reverse_index.get(result.standard_name, [])
+                if species_aliases:
+                    a_list = [a for a, t in species_aliases]
+                    abbrs = [a for a in a_list if a.isupper() and len(a) <= 10]
+                    variants = [a for a in a_list if "virus" in a.lower() or len(a.split()) >= 3]
+                    commons = [a for a in a_list if a not in abbrs and a not in variants]
+                    st.markdown("---")
+                    st.markdown("#### Semantic Knowledge Graph")
+                    c1, c2, c3 = st.columns(3)
+                    c1.markdown("**Abbreviation**\n\n" + (" / ".join(abbrs[:10]) if abbrs else "-"))
+                    c2.markdown("**Scientific Variants**\n\n" + (" / ".join(variants[:10]) if variants else "-"))
+                    c3.markdown("**Common & Local**\n\n" + (" / ".join(commons[:10]) if commons else "-"))
             else:
                 st.error("Unmatched (未匹配到 ICTV 物种)")
                 st.info("💡 Tip: 请检查拼写，或者尝试输入 NCBI Taxonomy ID")
