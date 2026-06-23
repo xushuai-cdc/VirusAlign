@@ -369,16 +369,9 @@ with tab1:
     # 确定最终查询词：优先用点击按钮的词，否则用用户输入的词
     final_query = query
 
-    st.write(f"DEBUG: query={query!r}, final_query={final_query!r}")
     if final_query:
-        st.write("DEBUG2: inside if - about to match")
         with st.spinner("Matching..."):
             result = engine.match_one(final_query)
-            st.markdown(f"**MATCH_DEBUG: match_source={result.match_source}, matched={result.is_matched()}**")
-            _da = engine._data.get_alias_map().get("sftsv", "NOT_FOUND")
-            st.markdown(f"**ALIAS_DEBUG: alias_map has sftsv -> {_da}**")
-            _dc = len(engine._data.get_alias_map())
-            st.markdown(f"**ALIAS_DEBUG: total alias entries = {_dc}**")
             if result.is_matched():
                 # --- A. 状态条 ---
                 status_text = MATCH_SOURCE_LABELS.get(result.match_source, result.match_source)
