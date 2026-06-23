@@ -532,7 +532,8 @@ with tab2:
                 st.markdown("---")
                 st.markdown("#### \U0001f310 Semantic Knowledge Graph\uff08\u8bed\u4e49\u77e5\u8bc6\u56fe\u8c31\uff09")
                 abbr_upper = [a.upper() for a in groups["abbreviation"][:15]]
-                st.markdown("\u25cf **Abbreviations\uff08\u7f29\u5199\uff09**\n\n" + (" / ".join(abbr_upper) if abbr_upper else "-"))
+                if abbr_upper:
+                    st.markdown("\u25cf **Abbreviations\uff08\u7f29\u5199\uff09**\n\n" + (" / ".join(abbr_upper) if abbr_upper else "-"))
                 _genus = engine._data.get_species_index().get(selected, {}).get("Genus", "")
                 def _fmt_sci(name):
                     if _genus and _genus.lower() in name.lower():
@@ -545,8 +546,10 @@ with tab2:
                         return f"*{name}*"
                     return name
                 variants_fmt = [_fmt_sci(v) for v in groups["name_variant"][:15]]
-                st.markdown("\u25cf **Variants\uff08\u79d1\u5b66\u53d8\u4f53\uff09**\n\n" + (" / ".join(variants_fmt) if variants_fmt else "-"))
-                st.markdown("\u25cf **Common\uff08\u5e38\u7528\u4e0e\u4e2d\u6587\uff09**\n\n" + (" / ".join(groups["common_name"][:15]) if groups["common_name"] else "-"))
+                if variants_fmt:
+                    st.markdown("\u25cf **Variants\uff08\u79d1\u5b66\u53d8\u4f53\uff09**\n\n" + (" / ".join(variants_fmt) if variants_fmt else "-"))
+                if groups["common_name"]:
+                    st.markdown("\u25cf **Common\uff08\u5e38\u7528\u4e0e\u4e2d\u6587\uff09**\n\n" + (" / ".join(groups["common_name"][:15]) if groups["common_name"] else "-"))
                 st.markdown("")
 
             idx = engine._data.get_species_index()
