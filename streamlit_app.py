@@ -571,75 +571,49 @@ with tab2:
 
 
 # ===== Tab 3: Encyclopedia =====
-with tab3:
-    st.markdown("<h3 style='text-align:center'>Encyclopedia (????)</h3>", unsafe_allow_html=True)
-    st.caption("Select an ICTV species to view its full taxonomy and all known aliases.")
+    with tab3:
+        st.markdown("<h3 style='text-align:center'>Encyclopedia (\u6807\u51c6\u767e\u79d1)</h3>", unsafe_allow_html=True)
+        st.caption("Select an ICTV species to view its taxonomy and all known aliases.")
 
-    selected = st.selectbox("", species_list, placeholder="Choose a species...", label_visibility="collapsed")
+        selected = st.selectbox("", species_list, placeholder="Choose a species...", label_visibility="collapsed")
 
-    if selected:
-        col_l, col_r = st.columns([3, 2])
+        if selected:
+            aliases = reverse_index.get(selected, [])
+            if aliases:
+                std_n = selected.lower().replace(" ", "").replace("_", "").replace("-", "")
+                groups = {"abbreviation": [], "name_variant": [], "common_name": []}
+                for name, atype in aliases:
+                    kn = name.lower().replace(" ", "").replace("_", "").replace("-", "")
+                    if kn == std_n:
+                        continue
+                    if atype in groups:
+                        groups[atype].append(name)
+                for n in list(groups["common_name"]):
+                    if (n.isupper() and len(n) <= 10) or (n.isascii() and len(n) <= 5 and " " not in n and not n.isdigit()):
+                        groups["abbreviation"].append(n)
+                        groups["common_name"].remove(n)
+                st.markdown("---")
+                c1, c2, c3 = st.columns(3)
+                c1.markdown("**Abbreviations**\\n\\n" + (" / ".join(groups["abbreviation"][:15]) if groups["abbreviation"] else "-"))
+                c2.markdown("**Name Variants**\\n\\n" + (" / ".join(groups["name_variant"][:15]) if groups["name_variant"] else "-"))
+                c3.markdown("**Common Names**\\n\\n" + (" / ".join(groups["common_name"][:15]) if groups["common_name"] else "-"))
 
-        with col_l:
-            st.markdown("**Full Taxonomy**")
             idx = engine._data.get_species_index()
             entry = idx.get(selected, {})
             if entry:
-                levels = ["Realm", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
-                cmap = {"Realm": "#003366", "Kingdom": "#004d99", "Phylum": "#336699",
-                        "Class": "#008080", "Order": "#2E8B57", "Family": "#50C878",
-                        "Genus": "#9ACD32", "Species": "#FF8C00"}
-                for level in levels:
-                    val = entry.get(level, "-")
-                    c = cmap.get(level, "#888")
-                    if val != "-":
-                        st.markdown(f"<span style='color:{c};font-weight:bold'>{level}:</span> <i>{val}</i>", unsafe_allow_html=True)
-                    else:
-                        st.markdown(f"<span style='color:{c};font-weight:bold'>{level}:</span> -", unsafe_allow_html=True)
-
-                if entry.get("full_path"):
-                    with st.expander("Full Path"):
+                with st.expander("**Taxonomic Lineage (\u5206\u7c7b\u5168\u8def\u5f84)**", expanded=True):
+                    if entry.get("full_path"):
                         st.markdown(f"*{entry['full_path']}*")
-
-        with col_r:
-            st.markdown("**Known Aliases & History**")
-            aliases = reverse_index.get(selected, [])
-            if aliases:
-                std = selected.lower().replace(" ", "").replace("_", "").replace("-", "")
-                groups = {"abbreviation": [], "name_variant": [], "common_name": [], "strain_name": []}
-                for name, atype in aliases:
-                    if atype in groups:
-                        groups[atype].append(name)
-                # Re-categorize short names that slipped through
-                for group_key in ["common_name"]:
-                    fixed = []
-                    for n in groups[group_key]:
-                        if (n.isupper() and len(n) <= 10) or (n.isascii() and len(n) <= 5 and " " not in n and not n.isdigit()):
-                            groups["abbreviation"].append(n)
+                with st.expander("**All Taxonomic Levels (\u5404\u7ea7\u5206\u7c7b)**"):
+                    levels = ["Realm", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
+                    cmap = {"Realm": "#003366", "Kingdom": "#004d99", "Phylum": "#336699", "Class": "#008080", "Order": "#2E8B57", "Family": "#50C878", "Genus": "#9ACD32", "Species": "#FF8C00"}
+                    for level in levels:
+                        val = entry.get(level, "-")
+                        c = cmap.get(level, "#888")
+                        if val != "-":
+                            st.markdown(f"<span style='color:{c};font-weight:bold'>{level}:</span> <i>{val}</i>", unsafe_allow_html=True)
                         else:
-                            fixed.append(n)
-                    groups[group_key] = fixed
-                labels = {"abbreviation": "Abbreviations", "name_variant": "Name Variants", "common_name": "Common Names", "strain_name": "Strains"}
-                for atype, label in labels.items():
-                    items = groups.get(atype, [])
-                    if items:
-                        st.markdown(f"**{label}** ({len(items)})")
-                        small_cols = st.columns(2)
-                        mid = len(items) // 2 + len(items) % 2
-                        for idx, n in enumerate(items[:20]):
-                            small_cols[idx // mid if idx < mid else 1].markdown(f"- `{n}`")
-                        if len(items) > 20:
-                            st.caption(f"... and {len(items) - 20} more")
-                        st.markdown("")
-            else:
-                st.caption("No alias data available.")
-
-            # NCBI tax_id link
-            for tid, sname in engine._data.get_ncbi_map().items():
-                if sname == selected:
-                    st.markdown(f"**NCBI TaxID**: [{tid}](https://www.ncbi.nlm.nih.gov/taxonomy/?term={tid})")
-                    break
-
+                            st.markdown(f"<span style='color:{c};font-weight:bold'>{level}:</span> -", unsafe_allow_html=True)
 # ======================== Footer ========================
 st.divider()
 st.markdown(
