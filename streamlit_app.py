@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """VirusAlign web interface - Streamlit implementation."""
 
-import sys
+import sys, re
 from pathlib import Path
 
 import streamlit as st
@@ -125,7 +125,7 @@ if "reverse_index" not in st.session_state:
         kn = k.lower().replace(" ", "").replace("_", "").replace("-", "")
         if kn == std:
             continue
-        if (k.isupper() and len(k) <= 10) or (len(k) <= 5 and " " not in k and not k.isdigit()):
+        if (k.isupper() and len(k) <= 10) or (k.isascii() and len(k) <= 5 and " " not in k and not k.isdigit()):
             rev[v].append((k, "abbreviation"))
         elif "virus" in k.lower() or len(k.split()) >= 3:
             rev[v].append((k, "name_variant"))
@@ -462,15 +462,17 @@ with tab1:
                 species_aliases = reverse_index.get(result.standard_name, [])
                 if species_aliases:
                     a_list = [a for a, t in species_aliases]
-                    abbrs = [a for a in a_list if (a.isupper() and len(a) <= 10) or (len(a) <= 5 and " " not in a and not a.isdigit())]
-                    variants = [a for a in a_list if "virus" in a.lower() or len(a.split()) >= 3]
-                    commons = [a for a in a_list if a not in abbrs and a not in variants]
+                    abbrs = [a for a in a_list if (a.isupper() and len(a) <= 10) or (a.isascii() and len(a) <= 5 and " " not in a and not a.isdigit())]
+                    variants = [a for a in a_list if a not in abbrs and ("virus" in a.lower() or len(a.split()) >= 3)]
+                    chinese = [a for a in a_list if a not in abbrs and a not in variants and bool(re.search(r"[\u4e00-\u9fff]", a))]
+                    commons = [a for a in a_list if a not in abbrs and a not in variants and a not in chinese]
                     st.markdown("---")
                     st.markdown("#### **Semantic Knowledge Graph**")
-                    c1, c2, c3 = st.columns(3)
-                    c1.markdown("**Abbreviations**\n\n" + (" / ".join(abbrs[:10]) if abbrs else "-"))
-                    c2.markdown("**Scientific Variants**\n\n" + (" / ".join(variants[:10]) if variants else "-"))
-                    c3.markdown("**Common & Local**\n\n" + (" / ".join(commons[:10]) if commons else "-"))
+                    c1, c2, c3, c4 = st.columns([1.2, 1.8, 1.2, 1.2])
+                    c1.markdown("**Abbreviations**\n\n" + (" / ".join(abbrs[:15]) if abbrs else "-"))
+                    c2.markdown("**Scientific Variants**\n\n" + (" / ".join(variants[:15]) if variants else "-"))
+                    c3.markdown("**\u4e2d\u6587\u540d (Chinese)**\n\n" + (" / ".join(chinese[:15]) if chinese else "-"))
+                    c4.markdown("**\u5176\u4ed6 (Other)**\n\n" + (" / ".join(commons[:15]) if commons else "-"))
             # H. Semantic Knowledge Graph
             if reverse_index:
                 species_aliases = reverse_index.get(result.standard_name, [])
@@ -612,7 +614,7 @@ with tab3:
                 for group_key in ["common_name"]:
                     fixed = []
                     for n in groups[group_key]:
-                        if (n.isupper() and len(n) <= 10) or (len(n) <= 5 and " " not in n and not n.isdigit()):
+                        if (n.isupper() and len(n) <= 10) or (n.isascii() and len(n) <= 5 and " " not in n and not n.isdigit()):
                             groups["abbreviation"].append(n)
                         else:
                             fixed.append(n)
