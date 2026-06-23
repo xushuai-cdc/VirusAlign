@@ -141,22 +141,6 @@ species_list = st.session_state.species_list
 
 # ======================== Sidebar ========================
 # Reverse index for Encyclopedia tab (species -> all aliases)
-if "reverse_index" not in st.session_state:
-    from collections import defaultdict
-    alias_map = engine._data.get_alias_map()
-    rev = defaultdict(list)
-    for k, v in alias_map.items():
-        if k == v: continue
-        if k.isupper() and len(k) <= 10:
-            rev[v].append((k, "abbreviation"))
-        elif "virus" in k.lower() or len(k.split()) >= 3:
-            rev[v].append((k, "name_variant"))
-        else:
-            rev[v].append((k, "common_name"))
-    st.session_state.reverse_index = dict(rev)
-    st.session_state.species_list = sorted(st.session_state.reverse_index.keys())
-
-reverse_index = st.session_state.reverse_index
 species_list = st.session_state.species_list
 
 with st.sidebar:
@@ -457,45 +441,6 @@ with tab1:
                             st.markdown(f"{label}: -", unsafe_allow_html=True)
                         else:
                             st.markdown(f"{label}: <i>{val}</i>", unsafe_allow_html=True)
-            # H. Semantic Knowledge Graph
-            if reverse_index:
-                species_aliases = reverse_index.get(result.standard_name, [])
-                if species_aliases:
-                    a_list = [a for a, t in species_aliases]
-                    abbrs = [a for a in a_list if (a.isupper() and len(a) <= 10) or (a.isascii() and len(a) <= 5 and " " not in a and not a.isdigit())]
-                    variants = [a for a in a_list if a not in abbrs and ("virus" in a.lower() or len(a.split()) >= 3)]
-                    chinese = [a for a in a_list if a not in abbrs and a not in variants and bool(re.search(r"[\u4e00-\u9fff]", a))]
-                    commons = [a for a in a_list if a not in abbrs and a not in variants and a not in chinese]
-                    st.markdown("---")
-                    st.markdown("#### **Semantic Knowledge Graph**")
-                    c1, c2, c3, c4 = st.columns([1.2, 1.8, 1.2, 1.2])
-                    c1.markdown("**Abbreviations**\n\n" + (" / ".join(abbrs[:15]) if abbrs else "-"))
-                    c2.markdown("**Scientific Variants**\n\n" + (" / ".join(variants[:15]) if variants else "-"))
-                    c3.markdown("**\u4e2d\u6587\u540d (Chinese)**\n\n" + (" / ".join(chinese[:15]) if chinese else "-"))
-                    c4.markdown("**\u5176\u4ed6 (Other)**\n\n" + (" / ".join(commons[:15]) if commons else "-"))
-            # H. Semantic Knowledge Graph
-            if reverse_index:
-                species_aliases = reverse_index.get(result.standard_name, [])
-                if species_aliases:
-                    std_norm = result.standard_name.lower().replace(" ", "").replace("_", "").replace("-", "")
-                    a_list = []
-                    for a, t in species_aliases:
-                        a_norm = a.lower().replace(" ", "").replace("_", "").replace("-", "")
-                        if a_norm != std_norm:
-                            a_list.append(a)
-                    abbrs = [a for a in a_list if (a.isupper() and len(a) <= 10) or (len(a) <= 5 and " " not in a and not a.isdigit())]
-                    variants = [a for a in a_list if "virus" in a.lower() or len(a.split()) >= 3]
-                    commons = [a for a in a_list if a not in abbrs and a not in variants]
-                    st.markdown("---")
-                    st.markdown("#### Semantic Knowledge Graph")
-                    c1, c2, c3 = st.columns(3)
-                    c1.markdown("**Abbreviation**\n\n" + (" / ".join(abbrs[:10]) if abbrs else "-"))
-                    c2.markdown("**Scientific Variants**\n\n" + (" / ".join(variants[:10]) if variants else "-"))
-                    c3.markdown("**Common & Local**\n\n" + (" / ".join(commons[:10]) if commons else "-"))
-            else:
-                st.error("Unmatched (未匹配到 ICTV 物种)")
-                st.info("💡 Tip: 请检查拼写，或者尝试输入 NCBI Taxonomy ID")
-
 # ===== Tab 2: Batch Process =====
 with tab2:
     uploaded = st.file_uploader(
