@@ -360,14 +360,12 @@ with tab1:
         for i, s in enumerate(["SARS-CoV-2", "SFTSV", "3418604"]):
             if row1[i].button(s, key=f"s1_{i}"):
                 st.session_state["query_input"] = s
-                st.rerun()
 
         # ????2???
         row2 = st.columns(2)
         for i, s in enumerate(["Zika", "Rabies"]):
             if row2[i].button(s, key=f"s2_{i}"):
                 st.session_state["query_input"] = s
-                st.rerun()
 
     # 确定最终查询词：优先用点击按钮的词，否则用用户输入的词
     final_query = st.session_state["query_input"] if st.session_state["query_input"] else user_input
