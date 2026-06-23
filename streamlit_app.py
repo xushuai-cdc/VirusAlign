@@ -538,9 +538,10 @@ with tab2:
                         groups["abbreviation"].append(n)
                         groups["common_name"].remove(n)
                 st.markdown("---")
-                st.markdown("**Abbreviations**\n\n" + (" / ".join(groups["abbreviation"][:15]) if groups["abbreviation"] else "-"))
-                st.markdown("**Name Variants**\n\n" + (" / ".join(groups["name_variant"][:15]) if groups["name_variant"] else "-"))
-                st.markdown("**Common Names**\n\n" + (" / ".join(groups["common_name"][:15]) if groups["common_name"] else "-"))
+                st.markdown("#### \U0001f310 Semantic Knowledge Graph\uff08\u8bed\u4e49\u77e5\u8bc6\u56fe\u8c31\uff09")
+                st.markdown("\u25cf **Abbreviations\uff08\u7f29\u5199\uff09**\n\n" + (" / ".join(groups["abbreviation"][:15]) if groups["abbreviation"] else "-"))
+                st.markdown("\u25cf **Variants\uff08\u79d1\u5b66\u53d8\u4f53\uff09**\n\n" + (" / ".join(groups["name_variant"][:15]) if groups["name_variant"] else "-"))
+                st.markdown("\u25cf **Common\uff08\u5e38\u7528\u4e0e\u4e2d\u6587\uff09**\n\n" + (" / ".join(groups["common_name"][:15]) if groups["common_name"] else "-"))
                 st.markdown("")
 
             idx = engine._data.get_species_index()
