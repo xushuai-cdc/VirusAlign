@@ -543,10 +543,10 @@ with tab2:
                 st.markdown("\u25cf **Abbreviations\uff08\u7f29\u5199\uff09**\n\n" + (" / ".join(abbr_upper) if abbr_upper else "-"))
                 _genus = engine._data.get_species_index().get(selected, {}).get("Genus", "")
                 def _fmt_sci(name):
-                    if _genus and name.lower().startswith(_genus.lower()):
+                    if _genus and _genus.lower() in name.lower():
                         return f"*{name}*"
                     words = name.split()
-                    if len(words) >= 3 and words[-1].lower() == "virus":
+                    if 3 <= len(words) <= 4 and words[-1].lower() == "virus":
                         return f"*{name}*"
                     taxa = ("viria", "virae", "viricota", "viricetes", "virales", "viridae", "virinae")
                     if len(words) == 1 and name.lower().endswith(taxa):
