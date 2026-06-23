@@ -458,15 +458,10 @@ with tab2:
 
         if st.button("Standardize Now (开始标准化)", type="primary"):
             engine._stats = {"exact": 0, "alias": 0, "ncbi_id": 0, "unmatched": 0}  # 重置统计
-            bar = st.progress(0, text="Processing...")
             total = len(df)
             names = df[name_col].astype(str).tolist()
-
-            def update_progress(cur, tot):
-                bar.progress(cur / tot, f"{cur}/{tot} ({cur * 100 // tot}%)")
-
-            results = engine.match_batch(names, callback=update_progress)
-            bar.empty()
+            with st.spinner(f"Processing {total} names..."):
+                results = engine.match_batch(names)
 
             out_rows = []
             for i, (_, row) in enumerate(df.iterrows()):
