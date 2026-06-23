@@ -325,7 +325,7 @@ class AlignmentEngine:
         names: List[str],
         callback=None,
     ) -> List[MatchResult]:
-        """Fast batch matching without fuzzy/API overhead."""
+        """Batch process multiple names through match_one."""
         results: List[MatchResult] = []
         total = len(names)
         for i, raw_name in enumerate(names):
