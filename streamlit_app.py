@@ -533,7 +533,7 @@ with tab2:
 
 # ===== Tab 3: Encyclopedia =====
 with tab3:
-    st.markdown("<h3 style='text-align:center'>Encyclopedia</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:center'>Encyclopedia (????)</h3>", unsafe_allow_html=True)
     st.caption("Select an ICTV species to view its full taxonomy and all known aliases.")
 
     selected = st.selectbox("", species_list, placeholder="Choose a species...", label_visibility="collapsed")
@@ -566,11 +566,11 @@ with tab3:
             st.markdown("**Known Aliases & History**")
             aliases = reverse_index.get(selected, [])
             if aliases:
-                groups = {"abbreviation": [], "virus_name": [], "common_name": [], "strain_name": []}
+                groups = {"abbreviation": [], "name_variant": [], "common_name": [], "strain_name": []}
                 for name, atype in aliases:
                     if atype in groups:
                         groups[atype].append(name)
-                labels = {"abbreviation": "Abbreviations", "virus_name": "Name Variants", "common_name": "Common Names", "strain_name": "Strains"}
+                labels = {"abbreviation": "Abbreviations", "name_variant": "Name Variants", "common_name": "Common Names", "strain_name": "Strains"}
                 for atype, label in labels.items():
                     items = groups.get(atype, [])
                     if items:
