@@ -533,7 +533,7 @@ with tab2:
 
 # ===== Tab 3: Encyclopedia =====
 with tab3:
-    st.markdown("<h3 style='text-align:center'>Encyclopedia (????)</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:center'>Encyclopedia</h3>", unsafe_allow_html=True)
     st.caption("Select an ICTV species to view its full taxonomy and all known aliases.")
 
     selected = st.selectbox("", species_list, placeholder="Choose a species...", label_visibility="collapsed")
