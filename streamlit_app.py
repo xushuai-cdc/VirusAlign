@@ -530,8 +530,13 @@ with tab2:
                 for name, atype in aliases:
                     kn = name.lower().replace(" ", "").replace("_", "").replace("-", "")
                     if kn == std_n:
-                        groups[atype].append(name)
                         continue
+                    if atype in groups:
+                        groups[atype].append(name)
+                for n in list(groups["common_name"]):
+                    if (n.isupper() and len(n) <= 10) or (n.isascii() and len(n) <= 5 and " " not in n and not n.isdigit()):
+                        groups["abbreviation"].append(n)
+                        groups["common_name"].remove(n)
                 st.markdown("---")
                 st.markdown("#### \U0001f310 Semantic Knowledge Graph\uff08\u8bed\u4e49\u77e5\u8bc6\u56fe\u8c31\uff09")
                 abbr_upper = [a.upper() for a in groups["abbreviation"][:15]]
