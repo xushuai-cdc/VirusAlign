@@ -530,17 +530,46 @@ with tab2:
                 for name, atype in aliases:
                     kn = name.lower().replace(" ", "").replace("_", "").replace("-", "")
                     if kn == std_n:
+                        groups[atype].append(name)
                         continue
                     if atype in groups:
                         groups[atype].append(name)
-                for n in list(groups["common_name"]):
-                    if (n.isupper() and len(n) <= 10) or (n.isascii() and len(n) <= 5 and " " not in n and not n.isdigit()):
-                        groups["abbreviation"].append(n)
-                        groups["common_name"].remove(n)
                 st.markdown("---")
                 st.markdown("#### \U0001f310 Semantic Knowledge Graph\uff08\u8bed\u4e49\u77e5\u8bc6\u56fe\u8c31\uff09")
-                st.markdown("\u25cf **Abbreviations\uff08\u7f29\u5199\uff09**\n\n" + (" / ".join(groups["abbreviation"][:15]) if groups["abbreviation"] else "-"))
-                st.markdown("\u25cf **Variants\uff08\u79d1\u5b66\u53d8\u4f53\uff09**\n\n" + (" / ".join(groups["name_variant"][:15]) if groups["name_variant"] else "-"))
+                abbr_upper = [a.upper() for a in groups["abbreviation"][:15]]
+                st.markdown("\u25cf **Abbreviations\uff08\u7f29\u5199\uff09**\n\n" + (" / ".join(abbr_upper) if abbr_upper else "-"))
+                _genus = engine._data.get_species_index().get(selected, {}).get("Genus", "")
+                def _fmt_sci(name):
+                    if _genus and name.lower().startswith(_genus.lower()):
+                        return f"*{name}*"
+                    words = name.split()
+                    if len(words) >= 2 and words[-1][0].isupper() and words[-1].lower().endswith("virus"):
+                        return f"*{name}*"
+                    taxa = ("viria", "virae", "viricota", "viricetes", "virales", "viridae", "virinae")
+                    if len(words) == 1 and name.lower().endswith(taxa):
+                        return f"*{name}*"
+                    return name
+                variants_fmt = [_fmt_sci(v) for v in groups["name_variant"][:15]]
+                st.markdown("\u25cf **Variants\uff08\u79d1\u5b66\u53d8\u4f53\uff09**\n\n" + (" / ".join(variants_fmt) if variants_fmt else "-"))
+                st.markdown("\u25cf **Common\uff08\u5e38\u7528\u4e0e\u4e2d\u6587\uff09**\n\n" + (" / ".join(groups["common_name"][:15]) if groups["common_name"] else "-"))
+                st.markdown("")
+                st.markdown("---")
+                st.markdown("#### \U0001f310 Semantic Knowledge Graph\uff08\u8bed\u4e49\u77e5\u8bc6\u56fe\u8c31\uff09")
+                abbr_upper = [a.upper() for a in groups["abbreviation"][:15]]
+                st.markdown("\u25cf **Abbreviations\uff08\u7f29\u5199\uff09**\n\n" + (" / ".join(abbr_upper) if abbr_upper else "-"))
+                _genus = engine._data.get_species_index().get(selected, {}).get("Genus", "")
+                def _fmt_sci(name):
+                    if _genus and name.lower().startswith(_genus.lower()):
+                        return f"*{name}*"
+                    words = name.split()
+                    if len(words) >= 2 and words[-1][0].isupper() and words[-1].lower().endswith("virus"):
+                        return f"*{name}*"
+                    taxa = ("viria", "virae", "viricota", "viricetes", "virales", "viridae", "virinae")
+                    if len(words) == 1 and name.lower().endswith(taxa):
+                        return f"*{name}*"
+                    return name
+                variants_fmt = [_fmt_sci(v) for v in groups["name_variant"][:15]]
+                st.markdown("\u25cf **Variants\uff08\u79d1\u5b66\u53d8\u4f53\uff09**\n\n" + (" / ".join(variants_fmt) if variants_fmt else "-"))
                 st.markdown("\u25cf **Common\uff08\u5e38\u7528\u4e0e\u4e2d\u6587\uff09**\n\n" + (" / ".join(groups["common_name"][:15]) if groups["common_name"] else "-"))
                 st.markdown("")
 
