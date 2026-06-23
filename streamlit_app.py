@@ -458,7 +458,7 @@ with tab1:
                 species_aliases = reverse_index.get(result.standard_name, [])
                 if species_aliases:
                     a_list = [a for a, t in species_aliases]
-                    abbrs = [a for a in a_list if a.isupper() and len(a) <= 10]
+                    abbrs = [a for a in a_list if (a.isupper() and len(a) <= 10) or (len(a) <= 5 and " " not in a and not a.isdigit())]
                     variants = [a for a in a_list if "virus" in a.lower() or len(a.split()) >= 3]
                     commons = [a for a in a_list if a not in abbrs and a not in variants]
                     st.markdown("---")
@@ -471,8 +471,13 @@ with tab1:
             if reverse_index:
                 species_aliases = reverse_index.get(result.standard_name, [])
                 if species_aliases:
-                    a_list = [a for a, t in species_aliases]
-                    abbrs = [a for a in a_list if a.isupper() and len(a) <= 10]
+                    std_norm = result.standard_name.lower().replace(" ", "").replace("_", "").replace("-", "")
+                    a_list = []
+                    for a, t in species_aliases:
+                        a_norm = a.lower().replace(" ", "").replace("_", "").replace("-", "")
+                        if a_norm != std_norm:
+                            a_list.append(a)
+                    abbrs = [a for a in a_list if (a.isupper() and len(a) <= 10) or (len(a) <= 5 and " " not in a and not a.isdigit())]
                     variants = [a for a in a_list if "virus" in a.lower() or len(a.split()) >= 3]
                     commons = [a for a in a_list if a not in abbrs and a not in variants]
                     st.markdown("---")
