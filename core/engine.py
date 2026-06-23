@@ -6,6 +6,7 @@ import re
 from typing import Dict, List, Optional, Tuple
 
 from core.config import MATCH_CONFIDENCE, TAXONOMY_LEVELS
+from core.fuzzy_engine import FuzzyEngine
 from core.data_manager import DataManager
 from core.exceptions import NCBIAPIError, NetworkTimeoutError
 from core.logger import get_logger
@@ -100,6 +101,8 @@ class AlignmentEngine:
             "exact": 0, "alias": 0, "ncbi_id": 0, "unmatched": 0
         }
         self._idx_lower = None
+        self._alias_lower = None
+        self._fuzzy = None  # Lazy init
         logger.info("AlignmentEngine initialized")
 
     @property
@@ -226,7 +229,7 @@ class AlignmentEngine:
     def match_one(self, raw_name: str) -> MatchResult:
         """Execute three-tier matching on a single virus name.
 
-        Priority: exact match > alias match > NCBI ID lookup (local + live).
+        Priority: exact match > alias match > stripped key > fuzzy match > NCBI ID lookup (local + live).
         Also tries format variants (underscore, hyphen) during alias matching.
 
         Args:
@@ -272,7 +275,22 @@ class AlignmentEngine:
                     result.input_name = raw_name
                     return result
 
-        # 第三级：NCBI ID 匹配（先本地后实时查询）
+        # 第四级：模糊匹配 + 拼写纠正（FuzzyEngine）
+        if self._fuzzy is None:
+            self._fuzzy = FuzzyEngine(self._data.get_alias_map(), self._data.get_species_index())
+        sug = self._fuzzy.suggest(normalized)
+        if sug and sug[2] >= 0.78:
+            result = self._build_match(sug[1], "fuzzy", idx[sug[1]])
+            result.input_name = raw_name
+            logger.debug(f"Fuzzy match: {normalized} -> {sug[1]} ({sug[2]:.0%})")
+            self._stats["alias"] += 1
+            return result
+        # 检查语义歧义（如 CMV 人/植物冲突）
+        amb = self._fuzzy.resolve_ambiguity(normalized)
+        if amb:
+            logger.info(f"Ambiguity detected: {normalized} -> {amb}")
+
+        # 第五级：NCBI ID 匹配（先本地后实时查询）
         if name.isdigit():
             result = self._match_ncbi_local(name)
             if result:
