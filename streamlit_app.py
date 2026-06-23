@@ -109,9 +109,52 @@ def init_engine():
     return engine
 
 engine = init_engine()
+engine = init_engine()
 if engine is None:
     st.stop()
+
+# Reverse index for Encyclopedia tab
+if "reverse_index" not in st.session_state:
+    from collections import defaultdict
+    alias_map = engine._data.get_alias_map()
+    rev = defaultdict(list)
+    for k, v in alias_map.items():
+        if k == v:
+            continue
+        if k.isupper() and len(k) <= 10:
+            rev[v].append((k, "abbreviation"))
+        elif "virus" in k.lower() or len(k.split()) >= 3:
+            rev[v].append((k, "name_variant"))
+        elif "/" in k or k.count(".") > 2:
+            rev[v].append((k, "strain"))
+        else:
+            rev[v].append((k, "common_name"))
+    st.session_state.reverse_index = dict(rev)
+    st.session_state.species_list = sorted(st.session_state.reverse_index.keys())
+
+reverse_index = st.session_state.reverse_index
+species_list = st.session_state.species_list
+
 # ======================== Sidebar ========================
+# Reverse index for Encyclopedia tab (species -> all aliases)
+if "reverse_index" not in st.session_state:
+    from collections import defaultdict
+    alias_map = engine._data.get_alias_map()
+    rev = defaultdict(list)
+    for k, v in alias_map.items():
+        if k == v: continue
+        if k.isupper() and len(k) <= 10:
+            rev[v].append((k, "abbreviation"))
+        elif "virus" in k.lower() or len(k.split()) >= 3:
+            rev[v].append((k, "name_variant"))
+        else:
+            rev[v].append((k, "common_name"))
+    st.session_state.reverse_index = dict(rev)
+    st.session_state.species_list = sorted(st.session_state.reverse_index.keys())
+
+reverse_index = st.session_state.reverse_index
+species_list = st.session_state.species_list
+
 with st.sidebar:
     st.markdown("### VirusAlign v1.0")
     st.caption("MSL41 (2025 Release)")
