@@ -121,7 +121,11 @@ if "reverse_index" not in st.session_state:
     for k, v in alias_map.items():
         if k == v:
             continue
-        if k.isupper() and len(k) <= 10:
+        std = v.lower().replace(" ", "").replace("_", "").replace("-", "")
+        kn = k.lower().replace(" ", "").replace("_", "").replace("-", "")
+        if kn == std:
+            continue
+        if (k.isupper() and len(k) <= 10) or (len(k) <= 5 and " " not in k and not k.isdigit()):
             rev[v].append((k, "abbreviation"))
         elif "virus" in k.lower() or len(k.split()) >= 3:
             rev[v].append((k, "name_variant"))
@@ -599,10 +603,20 @@ with tab3:
             st.markdown("**Known Aliases & History**")
             aliases = reverse_index.get(selected, [])
             if aliases:
+                std = selected.lower().replace(" ", "").replace("_", "").replace("-", "")
                 groups = {"abbreviation": [], "name_variant": [], "common_name": [], "strain_name": []}
                 for name, atype in aliases:
                     if atype in groups:
                         groups[atype].append(name)
+                # Re-categorize short names that slipped through
+                for group_key in ["common_name"]:
+                    fixed = []
+                    for n in groups[group_key]:
+                        if (n.isupper() and len(n) <= 10) or (len(n) <= 5 and " " not in n and not n.isdigit()):
+                            groups["abbreviation"].append(n)
+                        else:
+                            fixed.append(n)
+                    groups[group_key] = fixed
                 labels = {"abbreviation": "Abbreviations", "name_variant": "Name Variants", "common_name": "Common Names", "strain_name": "Strains"}
                 for atype, label in labels.items():
                     items = groups.get(atype, [])
