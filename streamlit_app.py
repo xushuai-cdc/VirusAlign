@@ -257,7 +257,7 @@ with c3:
         unsafe_allow_html=True
     )
 
-tab1, tab2 = st.tabs(["🔍 Quick Lookup (单名查询)", "📂 Batch Process (批量处理)"])
+tab1, tab2, tab3 = st.tabs(["Quick Lookup (\u5355\u540d\u67e5\u8be2)", "Batch Process (\u6279\u91cf\u5904\u7406)", "Encyclopedia (\u6807\u51c6\u767e\u79d1)"])
 
 # ===== Tab 1: Quick Lookup ====
 st.markdown("""
@@ -486,6 +486,67 @@ with tab2:
                 mime="text/csv",
                 type="primary",
             )
+
+
+# ===== Tab 3: Encyclopedia =====
+with tab3:
+    st.markdown("<h3 style='text-align:center'>Encyclopedia (????)</h3>", unsafe_allow_html=True)
+    st.caption("Select an ICTV species to view its full taxonomy and all known aliases.")
+
+    selected = st.selectbox("", species_list, placeholder="Choose a species...", label_visibility="collapsed")
+
+    if selected:
+        col_l, col_r = st.columns([3, 2])
+
+        with col_l:
+            st.markdown("**Full Taxonomy**")
+            idx = engine._data.get_species_index()
+            entry = idx.get(selected, {})
+            if entry:
+                levels = ["Realm", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
+                cmap = {"Realm": "#003366", "Kingdom": "#004d99", "Phylum": "#336699",
+                        "Class": "#008080", "Order": "#2E8B57", "Family": "#50C878",
+                        "Genus": "#9ACD32", "Species": "#FF8C00"}
+                for level in levels:
+                    val = entry.get(level, "-")
+                    c = cmap.get(level, "#888")
+                    if val != "-":
+                        st.markdown(f"<span style='color:{c};font-weight:bold'>{level}:</span> <i>{val}</i>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<span style='color:{c};font-weight:bold'>{level}:</span> -", unsafe_allow_html=True)
+
+                if entry.get("full_path"):
+                    with st.expander("Full Path"):
+                        st.markdown(f"*{entry['full_path']}*")
+
+        with col_r:
+            st.markdown("**Known Aliases & History**")
+            aliases = reverse_index.get(selected, [])
+            if aliases:
+                groups = {"abbreviation": [], "virus_name": [], "common_name": [], "strain_name": []}
+                for name, atype in aliases:
+                    if atype in groups:
+                        groups[atype].append(name)
+                labels = {"abbreviation": "Abbreviations", "virus_name": "Name Variants", "common_name": "Common Names", "strain_name": "Strains"}
+                for atype, label in labels.items():
+                    items = groups.get(atype, [])
+                    if items:
+                        st.markdown(f"**{label}** ({len(items)})")
+                        small_cols = st.columns(2)
+                        mid = len(items) // 2 + len(items) % 2
+                        for idx, n in enumerate(items[:20]):
+                            small_cols[idx // mid if idx < mid else 1].markdown(f"- `{n}`")
+                        if len(items) > 20:
+                            st.caption(f"... and {len(items) - 20} more")
+                        st.markdown("")
+            else:
+                st.caption("No alias data available.")
+
+            # NCBI tax_id link
+            for tid, sname in engine._data.get_ncbi_map().items():
+                if sname == selected:
+                    st.markdown(f"**NCBI TaxID**: [{tid}](https://www.ncbi.nlm.nih.gov/taxonomy/?term={tid})")
+                    break
 
 # ======================== Footer ========================
 st.divider()
