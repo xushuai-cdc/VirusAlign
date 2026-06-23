@@ -371,9 +371,7 @@ with tab1:
 
     st.write(f"DEBUG: query={query!r}, final_query={final_query!r}")
     if final_query:
-        # 重置 session_state 供下次使用
-        pass
-        
+        st.write("DEBUG2: inside if - about to match")
         with st.spinner("Matching..."):
             result = engine.match_one(final_query)
             
