@@ -374,7 +374,7 @@ with tab1:
         st.write("DEBUG2: inside if - about to match")
         with st.spinner("Matching..."):
             result = engine.match_one(final_query)
-            
+            st.markdown(f"**MATCH_DEBUG: match_source={result.match_source}, matched={result.is_matched()}**")
             if result.is_matched():
                 # --- A. 状态条 ---
                 status_text = MATCH_SOURCE_LABELS.get(result.match_source, result.match_source)
