@@ -198,9 +198,20 @@ class AlignmentEngine:
                 self._stats["ncbi_id"] += 1
                 return self._build_match(sci, "ncbi_id", idx[sci])
             alias = self._data.get_alias_map()
+            alias = self._data.get_alias_map()
             if sci in alias and alias[sci] in idx:
                 self._stats["ncbi_id"] += 1
                 return self._build_match(alias[sci], "ncbi_id", idx[alias[sci]])
+            # Case-insensitive fallback for NCBI results
+            if self._alias_lower is None:
+                self._alias_lower = {}
+                for k, v in alias.items():
+                    lk = k.lower()
+                    if lk not in self._alias_lower:
+                        self._alias_lower[lk] = v
+            if sci in self._alias_lower and self._alias_lower[sci] in idx:
+                self._stats["ncbi_id"] += 1
+                return self._build_match(self._alias_lower[sci], "ncbi_id", idx[self._alias_lower[sci]])
         except (NCBIAPIError, NetworkTimeoutError) as e:
             logger.warning(f"Live lookup failed: {name}: {e}")
         except Exception as e:
@@ -280,7 +291,9 @@ class AlignmentEngine:
             self._fuzzy = FuzzyEngine(self._data.get_alias_map(), self._data.get_species_index())
         sug = self._fuzzy.suggest(normalized)
         if sug and sug[2] >= 0.78:
-            result = self._build_match(sug[1], "fuzzy", idx[sug[1]])
+            idx = self._data.get_species_index()
+            if sug[1] in idx:
+                result = self._build_match(sug[1], "fuzzy", idx[sug[1]])
             result.input_name = raw_name
             logger.debug(f"Fuzzy match: {normalized} -> {sug[1]} ({sug[2]:.0%})")
             self._stats["alias"] += 1
