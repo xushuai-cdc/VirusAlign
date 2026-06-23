@@ -110,6 +110,8 @@ class FuzzyEngine:
         nq = normalize(query)
         if not nq:
             return []
+        if nq.isdigit():
+            return []
         results = []
         for nc, orig, mtype in self._candidates:
             score = similarity_ratio(nq, nc)
