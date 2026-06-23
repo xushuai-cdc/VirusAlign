@@ -546,7 +546,7 @@ with tab2:
                     if _genus and name.lower().startswith(_genus.lower()):
                         return f"*{name}*"
                     words = name.split()
-                    if len(words) >= 2 and words[-1][0].isupper() and words[-1].lower().endswith("virus"):
+                    if len(words) >= 3 and words[-1].lower() == "virus":
                         return f"*{name}*"
                     taxa = ("viria", "virae", "viricota", "viricetes", "virales", "viridae", "virinae")
                     if len(words) == 1 and name.lower().endswith(taxa):
