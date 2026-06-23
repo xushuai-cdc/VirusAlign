@@ -325,21 +325,27 @@ class AlignmentEngine:
         names: List[str],
         callback=None,
     ) -> List[MatchResult]:
-        """Batch process multiple names through the matching pipeline.
-
-        Processes names sequentially with an optional progress callback.
-        Suitable for handling CSV batch uploads with thousands of entries.
-
-        Args:
-            names: List of virus name strings to process.
-            callback: Optional function(current, total) for progress reporting.
-        Returns:
-            List of MatchResult objects, one per input name.
-        """
+        """Fast batch matching without fuzzy/API overhead."""
+        alias = self._data.get_alias_map()
+        idx = self._data.get_species_index()
         results: List[MatchResult] = []
         total = len(names)
-        for i, name in enumerate(names):
-            results.append(self.match_one(name, use_fuzzy=False, use_api=False))
+        for i, raw_name in enumerate(names):
+            name = raw_name.strip()
+            normalized = normalize_taxonomy_key(name)
+            if normalized in idx:
+                r = self._build_match(normalized, "exact", idx[normalized])
+                r.input_name = raw_name
+                results.append(r)
+                self._stats["exact"] += 1
+            elif normalized in alias and alias[normalized] in idx:
+                r = self._build_match(alias[normalized], "alias", idx[alias[normalized]])
+                r.input_name = raw_name
+                results.append(r)
+                self._stats["alias"] += 1
+            else:
+                self._stats["unmatched"] += 1
+                results.append(MatchResult(input_name=raw_name))
             if callback and i % 10 == 0:
                 callback(i + 1, total)
         logger.info(f"Batch done: {total} items, stats={self._stats}")
