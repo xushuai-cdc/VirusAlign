@@ -237,7 +237,7 @@ class AlignmentEngine:
             taxonomy=entry,
         )
 
-    def match_one(self, raw_name: str) -> MatchResult:
+    def match_one(self, raw_name: str, use_fuzzy: bool = True) -> MatchResult:
         """Execute three-tier matching on a single virus name.
 
         Priority: exact match > alias match > stripped key > fuzzy match > NCBI ID lookup (local + live).
@@ -339,7 +339,7 @@ class AlignmentEngine:
         results: List[MatchResult] = []
         total = len(names)
         for i, name in enumerate(names):
-            results.append(self.match_one(name))
+            results.append(self.match_one(name, use_fuzzy=False))
             if callback and i % 10 == 0:
                 callback(i + 1, total)
         logger.info(f"Batch done: {total} items, stats={self._stats}")
