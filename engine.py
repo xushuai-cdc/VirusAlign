@@ -237,7 +237,7 @@ class AlignmentEngine:
             taxonomy=entry,
         )
 
-    def match_one(self, raw_name: str) -> MatchResult:
+    def match_one(self, raw_name: str, use_fuzzy: bool = True, use_api: bool = True) -> MatchResult:
         """Execute three-tier matching on a single virus name.
 
         Priority: exact match > alias match > stripped key > fuzzy match > NCBI ID lookup (local + live).
@@ -294,10 +294,10 @@ class AlignmentEngine:
             idx = self._data.get_species_index()
             if sug[1] in idx:
                 result = self._build_match(sug[1], "fuzzy", idx[sug[1]])
-            result.input_name = raw_name
-            logger.debug(f"Fuzzy match: {normalized} -> {sug[1]} ({sug[2]:.0%})")
-            self._stats["alias"] += 1
-            return result
+                result.input_name = raw_name
+                logger.debug(f"Fuzzy match: {normalized} -> {sug[1]} ({sug[2]:.0%})")
+                self._stats["alias"] += 1
+                return result
         # 检查语义歧义（如 CMV 人/植物冲突）
         amb = self._fuzzy.resolve_ambiguity(normalized)
         if amb:
@@ -309,11 +309,11 @@ class AlignmentEngine:
             if result:
                 result.input_name = raw_name
                 return result
-            # 本地未命中时激活 API 回退
-            result = self._match_ncbi_live(name)
-            if result:
-                result.input_name = raw_name
-                return result
+            if use_api:
+                result = self._match_ncbi_live(name)
+                if result:
+                    result.input_name = raw_name
+                    return result
 
         # 全链路过未匹配
         self._stats["unmatched"] += 1
@@ -325,21 +325,35 @@ class AlignmentEngine:
         names: List[str],
         callback=None,
     ) -> List[MatchResult]:
-        """Batch process multiple names through the matching pipeline.
-
-        Processes names sequentially with an optional progress callback.
-        Suitable for handling CSV batch uploads with thousands of entries.
-
-        Args:
-            names: List of virus name strings to process.
-            callback: Optional function(current, total) for progress reporting.
-        Returns:
-            List of MatchResult objects, one per input name.
-        """
+        """Batch process multiple names through match_one."""
         results: List[MatchResult] = []
         total = len(names)
-        for i, name in enumerate(names):
-            results.append(self.match_one(name))
+        for i, raw_name in enumerate(names):
+            n = raw_name.strip()
+            normalized = normalize_taxonomy_key(n)
+            
+            result = self._match_exact(normalized)
+            if not result:
+                result = self._match_alias(normalized)
+            if not result:
+                stripped = re.sub(r"[^a-z0-9]", "", normalized)
+                if stripped and stripped != normalized:
+                    result = self._match_exact(stripped)
+                    if not result:
+                        result = self._match_alias(stripped)
+            if not result:
+                for variant in [normalized.replace(" ", "_"), normalized.replace(" ", "-")]:
+                    if variant != normalized:
+                        result = self._match_alias(variant)
+                        if result:
+                            break
+            
+            if result:
+                result.input_name = raw_name
+                results.append(result)
+            else:
+                self._stats["unmatched"] += 1
+                results.append(MatchResult(input_name=raw_name))
             if callback and i % 10 == 0:
                 callback(i + 1, total)
         logger.info(f"Batch done: {total} items, stats={self._stats}")
