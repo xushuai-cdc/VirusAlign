@@ -294,10 +294,10 @@ class AlignmentEngine:
             idx = self._data.get_species_index()
             if sug[1] in idx:
                 result = self._build_match(sug[1], "fuzzy", idx[sug[1]])
-            result.input_name = raw_name
-            logger.debug(f"Fuzzy match: {normalized} -> {sug[1]} ({sug[2]:.0%})")
-            self._stats["alias"] += 1
-            return result
+                result.input_name = raw_name
+                logger.debug(f"Fuzzy match: {normalized} -> {sug[1]} ({sug[2]:.0%})")
+                self._stats["alias"] += 1
+                return result
         # 检查语义歧义（如 CMV 人/植物冲突）
         amb = self._fuzzy.resolve_ambiguity(normalized)
         if amb:
