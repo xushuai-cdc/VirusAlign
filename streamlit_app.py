@@ -596,9 +596,9 @@ with tab3:
                     groups["common_name"].append(k)
 
             labels = {
-                "abbreviation": "Abbreviations（缩写）",
-                "name_variant": "Name Variants（科学变体）",
-                "common_name": "Common Names（常用与中文名）",
+                "abbreviation": "● Abbreviations（缩写）",
+                "name_variant": "● Name Variants（科学变体）",
+                "common_name": "● Common Names（常用与中文名）",
             }
             for atype, label in labels.items():
                 items = groups.get(atype, [])
