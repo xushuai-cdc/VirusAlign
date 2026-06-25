@@ -573,7 +573,12 @@ with tab3:
         aliases = reverse_index.get(selected, [])
         if aliases:
             groups = {"abbreviation": [], "name_variant": [], "common_name": []}
+            seen_k = set()
             for k, atype in aliases:
+                k_lower = k.lower()
+                if k_lower in seen_k:
+                    continue
+                seen_k.add(k_lower)
                 # Skip format variants of the standard name itself
                 k_norm = k.replace(" ", "").replace("_", "").replace("-", "").lower()
                 if k_norm == selected_norm:
