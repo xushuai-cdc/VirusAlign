@@ -106,21 +106,27 @@ class FuzzyEngine:
         self._candidates.sort(key=lambda x: len(x[1]))
 
     def fuzzy_search(self, query: str) -> List[Tuple[str, str, str, float]]:
-        """Return sorted list of (matched_name, ictv_species, match_type, score)."""
+        """Return sorted list of (matched_name, ictv_species, match_type, score).
+        Skips candidates with large length differences and very short queries for performance.
+        """
         nq = normalize(query)
-        if not nq:
+        if not nq or len(nq) <= 2:  # skip ultra-short queries (e.g. "RV", "CMV")
             return []
         if nq.isdigit():
             return []
+        qlen = len(nq)
         results = []
         for nc, orig, mtype in self._candidates:
+            # Length pre-filter: skip if length difference > 50%
+            clen = len(nc)
+            if abs(clen - qlen) / max(qlen, clen) > 0.50:
+                continue
             score = similarity_ratio(nq, nc)
             if score >= SUGGEST_THRESHOLD:
                 ictv = self._alias.get(orig, orig) if mtype == "alias" else orig
                 results.append((orig, ictv, mtype, score))
         results.sort(key=lambda x: -x[3])
         return results[:10]
-
     def suggest(self, query: str) -> Optional[Tuple[str, str, float]]:
         """Return (suggestion, ictv_name, confidence) if a close match exists."""
         results = self.fuzzy_search(query)

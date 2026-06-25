@@ -154,6 +154,16 @@ class AlignmentEngine:
                 self._stats["alias"] += 1
                 logger.debug(f"Alias match: {name} -> {ictv_name}")
                 return self._build_match(ictv_name, "alias", idx[ictv_name])
+        # Case-insensitive fallback using cached lowercase lookup
+        if self._alias_lower is None:
+            self._alias_lower = {k.lower(): v for k, v in alias.items()}
+        name_lower = name.lower()
+        if name_lower in self._alias_lower:
+            ictv_name = self._alias_lower[name_lower]
+            if ictv_name in idx:
+                self._stats["alias"] += 1
+                logger.debug(f"Alias match (CI): {name} -> {ictv_name}")
+                return self._build_match(ictv_name, "alias", idx[ictv_name])
         return None
 
     def _match_ncbi_local(self, name: str) -> Optional[MatchResult]:
@@ -287,6 +297,8 @@ class AlignmentEngine:
                     return result
 
         # 第四级：模糊匹配 + 拼写纠正（FuzzyEngine）
+        if len(normalized) <= 2:
+            pass  # skip fuzzy for very short inputs
         if self._fuzzy is None:
             self._fuzzy = FuzzyEngine(self._data.get_alias_map(), self._data.get_species_index())
         sug = self._fuzzy.suggest(normalized)
