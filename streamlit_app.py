@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """VirusAlign web interface - Streamlit implementation."""
 
-import sys, re
+import sys
 from pathlib import Path
 
 import streamlit as st
@@ -11,7 +11,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from core.config import SOFTWARE_NAME_CN, SOFTWARE_NAME_EN, SOFTWARE_VERSION, ICTV_VERSION
+from core.config import SOFTWARE_NAME_CN, SOFTWARE_NAME_EN, ICTV_VERSION
 from core.constants import MATCH_SOURCE_LABELS, VIRUS_COVERAGE_CATEGORIES
 from core.data_manager import DataManager
 from core.engine import AlignmentEngine
@@ -121,11 +121,7 @@ if "reverse_index" not in st.session_state:
     for k, v in alias_map.items():
         if k == v:
             continue
-        std = v.lower().replace(" ", "").replace("_", "").replace("-", "")
-        kn = k.lower().replace(" ", "").replace("_", "").replace("-", "")
-        if kn == std:
-            continue
-        if (k.isupper() and len(k) <= 10) or (k.isascii() and len(k) <= 5 and " " not in k and not k.isdigit()):
+        if k.isupper() and len(k) <= 10:
             rev[v].append((k, "abbreviation"))
         elif "virus" in k.lower() or len(k.split()) >= 3:
             rev[v].append((k, "name_variant"))
@@ -141,10 +137,26 @@ species_list = st.session_state.species_list
 
 # ======================== Sidebar ========================
 # Reverse index for Encyclopedia tab (species -> all aliases)
+if "reverse_index" not in st.session_state:
+    from collections import defaultdict
+    alias_map = engine._data.get_alias_map()
+    rev = defaultdict(list)
+    for k, v in alias_map.items():
+        if k == v: continue
+        if k.isupper() and len(k) <= 10:
+            rev[v].append((k, "abbreviation"))
+        elif "virus" in k.lower() or len(k.split()) >= 3:
+            rev[v].append((k, "name_variant"))
+        else:
+            rev[v].append((k, "common_name"))
+    st.session_state.reverse_index = dict(rev)
+    st.session_state.species_list = sorted(st.session_state.reverse_index.keys())
+
+reverse_index = st.session_state.reverse_index
 species_list = st.session_state.species_list
 
 with st.sidebar:
-    st.markdown("### VirusAlign v1.0")
+    st.markdown("### VirusAlign")
     st.caption("MSL41 (2025 Release)")
     st.divider()
     st.markdown("### 数据看板 - Data Overview")
@@ -338,6 +350,8 @@ with tab1:
     )
 
     # 初始化 session_state，用于存储当前查询词
+    if "query_input" not in st.session_state:
+        st.session_state["query_input"] = ""
 
     # 搜索布局
     _, search_col, _ = st.columns([1.5, 3, 1.5])
@@ -349,7 +363,6 @@ with tab1:
             key="query_text_field",
             label_visibility="collapsed",
         )
-        query = user_input
 
         st.markdown("<div style='text-align:center; font-size:1.0rem; color:#666; margin-top:15px'>Try Samples (点击直接体验):</div>", unsafe_allow_html=True)
         
@@ -358,20 +371,27 @@ with tab1:
         row1 = st.columns(3)
         for i, s in enumerate(["SARS-CoV-2", "SFTSV", "3418604"]):
             if row1[i].button(s, key=f"s1_{i}"):
-                query = s
+                st.session_state["query_input"] = s
+                st.rerun()
 
         # ????2???
         row2 = st.columns(2)
         for i, s in enumerate(["Zika", "Rabies"]):
             if row2[i].button(s, key=f"s2_{i}"):
-                query = s
+                st.session_state["query_input"] = s
+                st.rerun()
 
     # 确定最终查询词：优先用点击按钮的词，否则用用户输入的词
-    final_query = query
+    final_query = st.session_state["query_input"] if st.session_state["query_input"] else user_input
 
+    # 执行匹配并展示结果（只有一个判断块）
     if final_query:
+        # 重置 session_state 供下次使用
+        st.session_state["query_input"] = ""
+        
         with st.spinner("Matching..."):
             result = engine.match_one(final_query)
+            
             if result.is_matched():
                 # --- A. 状态条 ---
                 status_text = MATCH_SOURCE_LABELS.get(result.match_source, result.match_source)
@@ -433,6 +453,10 @@ with tab1:
                             st.markdown(f"{label}: -", unsafe_allow_html=True)
                         else:
                             st.markdown(f"{label}: <i>{val}</i>", unsafe_allow_html=True)
+            else:
+                st.error("Unmatched (未匹配到 ICTV 物种)")
+                st.info("💡 Tip: 请检查拼写，或者尝试输入 NCBI Taxonomy ID")
+
 # ===== Tab 2: Batch Process =====
 with tab2:
     uploaded = st.file_uploader(
@@ -458,10 +482,15 @@ with tab2:
 
         if st.button("Standardize Now (开始标准化)", type="primary"):
             engine._stats = {"exact": 0, "alias": 0, "ncbi_id": 0, "unmatched": 0}  # 重置统计
+            bar = st.progress(0, text="Processing...")
             total = len(df)
             names = df[name_col].astype(str).tolist()
-            with st.spinner(f"Processing {total} names..."):
-                results = engine.match_batch(names)
+
+            def update_progress(cur, tot):
+                bar.progress(cur / tot, f"{cur}/{tot} ({cur * 100 // tot}%)")
+
+            results = engine.match_batch(names, callback=update_progress)
+            bar.empty()
 
             out_rows = []
             for i, (_, row) in enumerate(df.iterrows()):
@@ -503,71 +532,70 @@ with tab2:
 
 
 # ===== Tab 3: Encyclopedia =====
-    with tab3:
-        st.markdown("<h3 style='text-align:center'>Encyclopedia (\u6807\u51c6\u767e\u79d1)</h3>", unsafe_allow_html=True)
-        st.caption("Select an ICTV species to view its taxonomy and all known aliases.")
+with tab3:
+    st.markdown("<h3 style='text-align:center'>Encyclopedia</h3>", unsafe_allow_html=True)
+    st.caption("Select an ICTV species to view its full taxonomy and all known aliases.")
 
-        selected = st.selectbox("", species_list, placeholder="Choose a species...", label_visibility="collapsed")
+    selected = st.selectbox("", species_list, placeholder="Choose a species...", label_visibility="collapsed")
 
-        if selected:
-            aliases = reverse_index.get(selected, [])
-            if aliases:
-                std_n = selected.lower().replace(" ", "").replace("_", "").replace("-", "")
-                groups = {"abbreviation": [], "name_variant": [], "common_name": []}
-                for name, atype in aliases:
-                    kn = name.lower().replace(" ", "").replace("_", "").replace("-", "")
-                    if kn == std_n:
-                        continue
-                    if atype in groups:
-                        groups[atype].append(name)
-                for n in list(groups["common_name"]):
-                    if (n.isupper() and len(n) <= 10) or (n.isascii() and len(n) <= 5 and " " not in n and not n.isdigit()):
-                        groups["abbreviation"].append(n)
-                        groups["common_name"].remove(n)
-                st.markdown("---")
-                st.markdown("#### \U0001f310 Semantic Knowledge Graph\uff08\u8bed\u4e49\u77e5\u8bc6\u56fe\u8c31\uff09")
-                abbr_upper = [a.upper() for a in groups["abbreviation"][:15]]
-                if abbr_upper:
-                    st.markdown("\u25cf **Abbreviations\uff08\u7f29\u5199\uff09**\n\n" + (" / ".join(abbr_upper) if abbr_upper else "-"))
-                _genus = engine._data.get_species_index().get(selected, {}).get("Genus", "")
-                def _fmt_sci(name):
-                    if _genus and _genus.lower() in name.lower():
-                        return f"*{name}*"
-                    words = name.split()
-                    if 3 <= len(words) <= 4 and words[-1].lower() == "virus":
-                        return f"*{name}*"
-                    taxa = ("viria", "virae", "viricota", "viricetes", "virales", "viridae", "virinae")
-                    if len(words) == 1 and name.lower().endswith(taxa):
-                        return f"*{name}*"
-                    return name
-                variants_fmt = [_fmt_sci(v) for v in groups["name_variant"][:15]]
-                if variants_fmt:
-                    st.markdown("\u25cf **Variants\uff08\u79d1\u5b66\u53d8\u4f53\uff09**\n\n" + (" / ".join(variants_fmt) if variants_fmt else "-"))
-                if groups["common_name"]:
-                    st.markdown("\u25cf **Common\uff08\u5e38\u7528\u4e0e\u4e2d\u6587\uff09**\n\n" + (" / ".join(groups["common_name"][:15]) if groups["common_name"] else "-"))
-                st.markdown("")
+    if selected:
+        col_l, col_r = st.columns([3, 2])
 
+        with col_l:
+            st.markdown("**Full Taxonomy**")
             idx = engine._data.get_species_index()
             entry = idx.get(selected, {})
             if entry:
-                with st.expander("**Taxonomic Lineage (\u5206\u7c7b\u5168\u8def\u5f84)**", expanded=True):
-                    if entry.get("full_path"):
+                levels = ["Realm", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
+                cmap = {"Realm": "#003366", "Kingdom": "#004d99", "Phylum": "#336699",
+                        "Class": "#008080", "Order": "#2E8B57", "Family": "#50C878",
+                        "Genus": "#9ACD32", "Species": "#FF8C00"}
+                for level in levels:
+                    val = entry.get(level, "-")
+                    c = cmap.get(level, "#888")
+                    if val != "-":
+                        st.markdown(f"<span style='color:{c};font-weight:bold'>{level}:</span> <i>{val}</i>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<span style='color:{c};font-weight:bold'>{level}:</span> -", unsafe_allow_html=True)
+
+                if entry.get("full_path"):
+                    with st.expander("Full Path"):
                         st.markdown(f"*{entry['full_path']}*")
-                with st.expander("**All Taxonomic Levels (\u5404\u7ea7\u5206\u7c7b)**"):
-                    levels = ["Realm", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
-                    cmap = {"Realm": "#003366", "Kingdom": "#004d99", "Phylum": "#336699", "Class": "#008080", "Order": "#2E8B57", "Family": "#50C878", "Genus": "#9ACD32", "Species": "#FF8C00"}
-                    for level in levels:
-                        val = entry.get(level, "-")
-                        c = cmap.get(level, "#888")
-                        if val != "-":
-                            st.markdown(f"<span style='color:{c};font-weight:bold'>{level}:</span> <i>{val}</i>", unsafe_allow_html=True)
-                        else:
-                            st.markdown(f"<span style='color:{c};font-weight:bold'>{level}:</span> -", unsafe_allow_html=True)
+
+        with col_r:
+            st.markdown("**Known Aliases & History**")
+            aliases = reverse_index.get(selected, [])
+            if aliases:
+                groups = {"abbreviation": [], "virus_name": [], "common_name": [], "strain_name": []}
+                for name, atype in aliases:
+                    if atype in groups:
+                        groups[atype].append(name)
+                labels = {"abbreviation": "Abbreviations", "virus_name": "Name Variants", "common_name": "Common Names", "strain_name": "Strains"}
+                for atype, label in labels.items():
+                    items = groups.get(atype, [])
+                    if items:
+                        st.markdown(f"**{label}** ({len(items)})")
+                        small_cols = st.columns(2)
+                        mid = len(items) // 2 + len(items) % 2
+                        for idx, n in enumerate(items[:20]):
+                            small_cols[idx // mid if idx < mid else 1].markdown(f"- `{n}`")
+                        if len(items) > 20:
+                            st.caption(f"... and {len(items) - 20} more")
+                        st.markdown("")
+            else:
+                st.caption("No alias data available.")
+
+            # NCBI tax_id link
+            for tid, sname in engine._data.get_ncbi_map().items():
+                if sname == selected:
+                    st.markdown(f"**NCBI TaxID**: [{tid}](https://www.ncbi.nlm.nih.gov/taxonomy/?term={tid})")
+                    break
+
 # ======================== Footer ========================
 st.divider()
 st.markdown(
     "<div style='text-align:center'>"
-    f"VirusAlign v{SOFTWARE_VERSION} | {SOFTWARE_NAME_CN} | {ICTV_VERSION}"
+    f"VirusAlign | {SOFTWARE_NAME_CN} | {ICTV_VERSION}"
     "</div>",
     unsafe_allow_html=True
 )
