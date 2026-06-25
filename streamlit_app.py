@@ -533,7 +533,29 @@ with tab2:
 
 
 
+
 # ===== Tab 3: Encyclopedia =====
+def _format_sci_name(name, current_genus):
+    alias_clean = name.strip()
+    words = alias_clean.split()
+    # Rule 1: starts with current genus
+    if alias_clean.lower().startswith(current_genus.lower()):
+        return "*" + alias_clean + "*"
+    # Rule 2: single word with taxonomic suffix
+    taxa_suffixes = ("viria", "virae", "viricota", "viricetes", "virales", "viridae", "virinae")
+    if len(words) == 1 and alias_clean.lower().endswith(taxa_suffixes):
+        return "*" + alias_clean + "*"
+    # Rule 3: binominal where last word is capitalized and ends with "virus"
+    if len(words) >= 2:
+        last_word = words[-1]
+        if last_word.lower().endswith("virus") and last_word[0].isupper():
+            return "*" + alias_clean + "*"
+    # Rule 4: first word is a known historical genus
+    old_genera = ["Phlebovirus", "Flavivirus", "Lyssavirus", "Orthobunyavirus", "Hantavirus", "Nairovirus"]
+    if words[0] in old_genera:
+        return "*" + alias_clean + "*"
+    return alias_clean
+
 with tab3:
     st.markdown("<h3 style='text-align:center'>Encyclopedia</h3>", unsafe_allow_html=True)
     st.caption("Select an ICTV species to view its full taxonomy and all known aliases.")
@@ -544,8 +566,8 @@ with tab3:
         idx = engine._data.get_species_index()
         entry = idx.get(selected, {})
 
-        # Normalize selected name to filter format variants
         selected_norm = selected.replace(" ", "").replace("_", "").replace("-", "").lower()
+        current_genus = entry.get("Genus", "")
 
         # === Alias section (top) ===
         aliases = reverse_index.get(selected, [])
@@ -556,8 +578,10 @@ with tab3:
                 k_norm = k.replace(" ", "").replace("_", "").replace("-", "").lower()
                 if k_norm == selected_norm:
                     continue
-                # Re-classify: only ASCII uppercase as abbreviation
+                # Re-classify
                 if k.isascii() and k == k.upper() and len(k) <= 10:
+                    groups["abbreviation"].append(k.upper())
+                elif k.isascii() and k == k.lower() and len(k) <= 5 and len(k.split()) == 1:
                     groups["abbreviation"].append(k.upper())
                 elif "virus" in k.lower() or len(k.split()) >= 3:
                     groups["name_variant"].append(k)
@@ -577,7 +601,14 @@ with tab3:
                     display_items = [x for x in items if x.strip()][:20]
                     st.markdown(f"**{label}** ({len(items)})")
                     if atype == "name_variant":
-                        st.markdown(" / ".join(f"*{n}*" for n in display_items))
+                        formatted = []
+                        for n in display_items:
+                            sci = _format_sci_name(n, current_genus)
+                            if sci.startswith("*"):
+                                formatted.append(sci)
+                            else:
+                                formatted.append(n)
+                        st.markdown(" / ".join(formatted))
                     else:
                         st.markdown(" / ".join(display_items))
                     if len(items) > 20:
@@ -586,13 +617,13 @@ with tab3:
         else:
             st.caption("No alias data available.")
 
-        # === Full Path (middle), in expander ===
+        # === Full Path ===
         if entry and entry.get("full_path"):
             with st.expander("**Taxonomic Lineage（分类全路径）**", expanded=True):
                 fp = entry["full_path"]
                 st.markdown(f"*{fp}*")
 
-        # === All Levels (bottom), in expander ===
+        # === All Levels ===
         if entry:
             with st.expander("**All Taxonomic Levels（各级分类）**"):
                 levels = ["Realm", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
