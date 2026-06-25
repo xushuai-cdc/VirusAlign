@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """VirusAlign web interface - Streamlit implementation."""
 
+import re
 import sys
 from pathlib import Path
 
@@ -531,6 +532,7 @@ with tab2:
             )
 
 
+
 # ===== Tab 3: Encyclopedia =====
 with tab3:
     st.markdown("<h3 style='text-align:center'>Encyclopedia</h3>", unsafe_allow_html=True)
@@ -542,14 +544,21 @@ with tab3:
         idx = engine._data.get_species_index()
         entry = idx.get(selected, {})
 
+        # Normalize selected name to filter format variants
+        selected_norm = selected.replace(" ", "").replace("_", "").replace("-", "").lower()
+
         # === Alias section (top) ===
         aliases = reverse_index.get(selected, [])
         if aliases:
             groups = {"abbreviation": [], "name_variant": [], "common_name": []}
             for k, atype in aliases:
-                # Re-classify inside tab3 (case-insensitive abbreviation detection)
-                if k == k.upper() and len(k) <= 10:
-                    groups["abbreviation"].append(k)
+                # Skip format variants of the standard name itself
+                k_norm = k.replace(" ", "").replace("_", "").replace("-", "").lower()
+                if k_norm == selected_norm:
+                    continue
+                # Re-classify: only ASCII uppercase as abbreviation
+                if k.isascii() and k == k.upper() and len(k) <= 10:
+                    groups["abbreviation"].append(k.upper())
                 elif "virus" in k.lower() or len(k.split()) >= 3:
                     groups["name_variant"].append(k)
                 elif "/" in k or k.count(".") > 2:
@@ -565,38 +574,38 @@ with tab3:
             for atype, label in labels.items():
                 items = groups.get(atype, [])
                 if items:
+                    display_items = [x for x in items if x.strip()][:20]
                     st.markdown(f"**{label}** ({len(items)})")
-                    for n in items[:20]:
-                        if atype == "name_variant":
-                            st.markdown(f"- <i>{n}</i>", unsafe_allow_html=True)
-                        else:
-                            st.markdown(f"- {n}")
+                    if atype == "name_variant":
+                        st.markdown(" / ".join(f"*{n}*" for n in display_items))
+                    else:
+                        st.markdown(" / ".join(display_items))
                     if len(items) > 20:
                         st.caption(f"... and {len(items) - 20} more")
                     st.markdown("")
         else:
             st.caption("No alias data available.")
 
-        # === Full Path (middle) ===
+        # === Full Path (middle), in expander ===
         if entry and entry.get("full_path"):
-            st.markdown("**Taxonomic Lineage（分类全路径）**")
-            st.markdown(f"<i>{entry['full_path']}</i>", unsafe_allow_html=True)
-            st.markdown("")
+            with st.expander("**Taxonomic Lineage（分类全路径）**", expanded=True):
+                fp = entry["full_path"]
+                st.markdown(f"*{fp}*")
 
-        # === All Levels (bottom) ===
+        # === All Levels (bottom), in expander ===
         if entry:
-            st.markdown("**All Taxonomic Levels（各级分类）**")
-            levels = ["Realm", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
-            cmap = {"Realm": "#003366", "Kingdom": "#004d99", "Phylum": "#336699",
-                    "Class": "#008080", "Order": "#2E8B57", "Family": "#50C878",
-                    "Genus": "#9ACD32", "Species": "#FF8C00"}
-            for level in levels:
-                val = entry.get(level, "-")
-                c = cmap.get(level, "#888")
-                if val != "-":
-                    st.markdown(f"<span style='color:{c};font-weight:bold'>{level}:</span> <i>{val}</i>", unsafe_allow_html=True)
-                else:
-                    st.markdown(f"<span style='color:{c};font-weight:bold'>{level}:</span> -", unsafe_allow_html=True)
+            with st.expander("**All Taxonomic Levels（各级分类）**"):
+                levels = ["Realm", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
+                cmap = {"Realm": "#003366", "Kingdom": "#004d99", "Phylum": "#336699",
+                        "Class": "#008080", "Order": "#2E8B57", "Family": "#50C878",
+                        "Genus": "#9ACD32", "Species": "#FF8C00"}
+                for level in levels:
+                    val = entry.get(level, "-")
+                    c = cmap.get(level, "#888")
+                    if val != "-":
+                        st.markdown(f"<span style='color:{c};font-weight:bold'>{level}:</span> <i>{val}</i>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<span style='color:{c};font-weight:bold'>{level}:</span> -", unsafe_allow_html=True)
 
         # NCBI link
         for tid, sname in engine._data.get_ncbi_map().items():
