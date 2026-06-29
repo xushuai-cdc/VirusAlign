@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""VirusAlign web interface - Streamlit implementation."""
+"""VirusAlign-Taxon web interface - Streamlit implementation."""
 
 import re
 import sys
@@ -157,7 +157,7 @@ reverse_index = st.session_state.reverse_index
 species_list = st.session_state.species_list
 
 with st.sidebar:
-    st.markdown("### VirusAlign")
+    st.markdown("### VirusAlign-Taxon")
     st.caption("MSL41 (2025 Release)")
     st.divider()
     st.markdown("### 数据看板 - Data Overview")
@@ -274,7 +274,7 @@ with st.sidebar:
 # ======================== Main Interface ========================
 st.markdown(
     '<h1 style="color:#003680;font-size:6.0rem;font-weight:900;margin-bottom:2px;text-align:center;'
-    'font-family:Source Sans Pro,sans-serif">VirusAlign</h1>'
+    'font-family:Source Sans Pro,sans-serif">VirusAlign-Taxon</h1>'
     '<p style="color:#222;font-size:2.2rem;margin-top:0;margin-bottom:20px;text-align:center;'
     'font-family:Source Sans Pro,sans-serif">'
     '基于ICTV标准的病原体物种语义映射与分类标准化系统</p>',
@@ -526,7 +526,7 @@ with tab2:
             st.download_button(
                 label="Download Result (下载标准化 CSV)",
                 data=csv_data,
-                file_name="virusalign_result.csv",
+                file_name="virusalign_taxon_result.csv",
                 mime="text/csv",
                 type="primary",
             )
@@ -652,7 +652,7 @@ with tab3:
 st.divider()
 st.markdown(
     "<div style='text-align:center'>"
-    f"VirusAlign | {SOFTWARE_NAME_CN} | {ICTV_VERSION}"
+    f"VirusAlign-Taxon | {SOFTWARE_NAME_CN} | {ICTV_VERSION}"
     "</div>",
     unsafe_allow_html=True
 )
